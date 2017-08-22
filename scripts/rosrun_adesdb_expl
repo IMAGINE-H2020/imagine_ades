@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rosrun iis_libades_ros adesdb --home /home/erwan/ADESDB/

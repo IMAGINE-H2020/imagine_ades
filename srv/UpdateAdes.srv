@@ -1,0 +1,4 @@
+string ades_name
+AdesData ades
+---
+bool success

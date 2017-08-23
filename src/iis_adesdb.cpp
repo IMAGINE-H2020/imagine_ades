@@ -24,8 +24,6 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_delete_ades= nh_.advertiseService("adesdb/delete_ades", &Adesdb_ros::delete_ades_srv, this);
 
     shutdown = false;
-
-    std::cout << "Ok, Go !" << std::endl;
 }
 
 Adesdb_ros::~Adesdb_ros()
@@ -55,7 +53,7 @@ bool Adesdb_ros::list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libad
 
 bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq, iis_libades_ros::GetAdesPreConds::Response &rp)
 {
-    std::cout << "PC for : " << rq.ades_name << std::endl;
+    std::cout << "return preconditions for " << rq.ades_name << std::endl;
     iis_libades_ros::KeyValPair fail_pc_;
     if(database.isInDB(rq.ades_name))
     {
@@ -77,7 +75,7 @@ bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq,
 
 bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, iis_libades_ros::GetAdesEffects::Response &rp)
 {
-    std::cout << "EF for : " << rq.ades_name << std::endl;
+    std::cout << "return effects for " << rq.ades_name << std::endl;
     iis_libades_ros::KeyValPair fail_ef_;
     if(database.isInDB(rq.ades_name))
     {
@@ -100,7 +98,7 @@ bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, i
 bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, iis_libades_ros::GetAdesMotions::Response &rp)
 {
     // This function could just send back ms names and some info (see the Motion class from libades) and we provide another more specific service for a ades/ms_id request)
-    std::cout << "MO for : " << rq.ades_name << std::endl;
+    std::cout << "return motion sequences for " << rq.ades_name << std::endl;
     
     iis_libades_ros::MotionSequence fail_mo_seq_;
     fail_mo_seq_.sequence_name = "";
@@ -115,17 +113,12 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
 
         for(auto sequence : ades.getMotionSequences())
         {
-            // For each motion sequence in ades
-            std::cout << "Motion sequence: " << sequence.first << std::endl; 
-            std::cout << "Motion : " << sequence.second.getID() << std::endl; 
-            
             // prepare MotionSequence msg 
             // (sequence_name, input_types, effect_prob, effect_pred, motions)
             iis_libades_ros::MotionSequence mo_seq_;
             mo_seq_.sequence_name = sequence.first;
             mo_seq_.input_types = sequence.second.getInputTypes();
 
-            std::cout << "----------------------" << std::endl; 
             for(auto epb : sequence.second.getGMMEffectModels())
             {
                 iis_libades_ros::KeyValPair effect;
@@ -141,7 +134,6 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                 mo_seq_.effect_pred.push_back(effect);
             }
            
-            std::cout << "----------------------" << std::endl; 
             mo_seq_.motions = std::vector<iis_libades_ros::Motion>();
 
             for(auto motion : sequence.second.getMotions())
@@ -153,9 +145,6 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
 
                 // this is a map of string, vector<double>
                 auto params = motion->getMotionParameters();
-                std::cout << "motion type: " << mt.type << std::endl;
-                std::cout << "param size: " << params.size() << std::endl;
-                // building the 
                 motion_data.layout = std_msgs::MultiArrayLayout(); // layout;
                 motion_data.layout.data_offset = 0;
 
@@ -172,10 +161,10 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                     motion_data.layout.dim.push_back(dim_);
 
                     // Each motion parameter type
-                    std::cout << "dim size: " << dimension.first << ", " << dimension.second.size() << std::endl;
+                    //std::cout << "dim size: " << dimension.first << ", " << dimension.second.size() << std::endl;
                     for(auto val : dimension.second)
                     {
-                        std::cout << val << ", " << std::flush;
+                        //std::cout << val << ", " << std::flush;
                         motion_data.data.push_back((double)val);                        
                     }
                     std::cout << std::endl;
@@ -195,7 +184,7 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
 
 bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_libades_ros::StoreAdes::Response &rp)
 {
-    std::cout << "ADD : " << rq.ades.ades_name << std::endl;
+    std::cout << "trying to STORE " << rq.ades.ades_name << std::endl;
     bool result = false;
     if( !(database.isInDB(rq.ades.ades_name)) )
     {
@@ -313,6 +302,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
 
 bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp)
 {
+    std::cout << "trying to UPDATE " << rq.ades_name << std::endl;
     // This service is mostly a copy paste of store ; some refactoring will be needed
     bool result = false;
     // "name" in the request is the target (needs to exist)
@@ -321,10 +311,9 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
     {
         auto ades_to_update = database.updateAdesByName(rq.ades_name);
 
-        std::cout << "UPDATE : " << rq.ades_name << std::endl;
         if( !rq.ades.preconditions.empty() )
         {
-            std::cout << "PC not empty" << std::endl;
+            std::cout << "Updating preconditions" << std::endl;
             std::map<std::string, std::string> newPC;
             for(auto pc : rq.ades.preconditions)
             {
@@ -334,7 +323,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
         }
         if( !rq.ades.effects.empty() )
         {
-            std::cout << "EF not empty" << std::endl;
+            std::cout << "Updating effects" << std::endl;
             std::map<std::string, std::string> newEF;
             for(auto ef : rq.ades.effects)
             {
@@ -344,7 +333,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
         }
         if( !rq.ades.motion_sequences.empty() )
         {
-            std::cout << "MS not empty" << std::endl;
+            std::cout << "Updating motion sequences" << std::endl;
             //std::map<std::string, MotionSequence> newMotionSequences;
             for(auto ms : rq.ades.motion_sequences)
             {
@@ -458,12 +447,14 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
         std::cout << "ADES " << rq.ades_name << " not in DB, store it first" << std::endl;
         std::cout << "no update has been performed." << std::endl;
     }
-   rp.success = result;
+    std::cout << "Ades nb : " << database.getAdesNb() << std::endl;
+    rp.success = result;
 
 }
 
 bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp)
 {
+    std::cout << "trying to DELETE " << rq.ades_name << std::endl;
     bool alreadyExists = (database.isInDB(rq.ades_name));
     bool stillThere = alreadyExists;
     std::cout << "DEL : " << rq.ades_name << " is" << (alreadyExists ? " " : " not ") << "in DB." << std::endl;
@@ -478,13 +469,13 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
 
 bool Adesdb_ros::run()
 {
-    std::cout << "Here it is, the banana loop !" << std::endl;
+    std::cout << "Starting main loop." << std::endl;
 	// Wait for callback from action topic to be called.
 	while(nh_.ok() && !shutdown)
 	{
 		ros::spinOnce();
 	}
-    std::cout << "Take them!" << std::endl;
+    std::cout << "Spinning finished, exiting ..." << std::endl;
    
 	return true;
 }
@@ -509,12 +500,12 @@ int main(int argc, char** argv)
     //else{ version = vm["version"]; }
 
 	//init the ROS node
-	ros::init(argc, argv, "env_micro_SIM");
+	ros::init(argc, argv, "adesdb_node");
 	ros::NodeHandle nh;
+    std::cout << "Provided parameters:" << std::endl;
 	std::cout << "--home : " << vm["home"].as<std::string>() << std::endl;
 	std::cout << "--version : " << vm["version"].as<int>() << std::endl;
 
-    std::cout << "Gimme a bananADES !" << std::endl;
 	Adesdb_ros ros_database(nh, vm["home"].as<std::string>(), vm["version"].as<int>());
 
     ros_database.run();

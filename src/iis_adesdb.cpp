@@ -36,7 +36,7 @@ Adesdb_ros::~Adesdb_ros()
         {
             for(auto mt_ : ms_.second.getMotions())
             {
-                delete mt_;
+                //delete mt_;
             }
         }
     }
@@ -282,10 +282,6 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
                     params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
                     data_index += i.size;
                 }
-                /*for(auto ip : params)
-                {
-                    std::cout << ip.first << ", size: " << ip.second.size() << std::endl; 
-                }*/
                 switch(this_type)
                 {
                     case 0: // DMP
@@ -306,7 +302,6 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
             newMotionSequences.insert(std::pair<std::string, MotionSequence>(ms.sequence_name, ms_));
         } 
      
-        std::cout << "Ades nb : " << database.getAdesNb() << std::endl;
         // Creating Ades here to use the easier insert*EffectModel methods
         Ades newAdes(rq.ades.ades_name, newPC, newEF, newMotionSequences);
         database.addAdes(newAdes);
@@ -318,6 +313,152 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
 
 bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp)
 {
+    // This service is mostly a copy paste of store ; some refactoring will be needed
+    bool result = false;
+    // "name" in the request is the target (needs to exist)
+    // "ades.{ades_name, *}" is the new content (needs to be filled)
+    if( (database.isInDB(rq.ades_name)) )
+    {
+        auto ades_to_update = database.updateAdesByName(rq.ades_name);
+
+        std::cout << "UPDATE : " << rq.ades_name << std::endl;
+        if( !rq.ades.preconditions.empty() )
+        {
+            std::cout << "PC not empty" << std::endl;
+            std::map<std::string, std::string> newPC;
+            for(auto pc : rq.ades.preconditions)
+            {
+                newPC.insert(std::pair<std::string, std::string>(pc.key, pc.value));
+            }
+            ades_to_update->modifyPreconditions(newPC);
+        }
+        if( !rq.ades.effects.empty() )
+        {
+            std::cout << "EF not empty" << std::endl;
+            std::map<std::string, std::string> newEF;
+            for(auto ef : rq.ades.effects)
+            {
+                newEF.insert(std::pair<std::string, std::string>(ef.key, ef.value));
+            }
+            ades_to_update->modifyEffects(newEF);
+        }
+        if( !rq.ades.motion_sequences.empty() )
+        {
+            std::cout << "MS not empty" << std::endl;
+            //std::map<std::string, MotionSequence> newMotionSequences;
+            for(auto ms : rq.ades.motion_sequences)
+            {
+                MotionSequence ms_;
+                std::vector<std::string> inputTypes;
+                for(auto it : ms.input_types)
+                {
+                    inputTypes.push_back(it);
+                }
+                ms_.insertInputTypes(inputTypes);
+
+                for(auto epb : ms.effect_prob)
+                {
+                    // Process values - this should probably go in some utils/processign file:
+                    int pos = 0;
+                    std::vector<std::string> tokens;
+                    std::string delimiter = " ";
+                    while ((pos = epb.value.find(delimiter)) != std::string::npos)
+                    {
+                        tokens.push_back(epb.value.substr(0, pos));
+                        epb.value.erase(0, pos + delimiter.length());
+                    }
+                    if(tokens.size() > 1)
+                    {
+                        ms_.insertGMMEffectModel(epb.key, std::stoi(tokens.at(0)), std::stoi(tokens.at(1)));
+                    }
+                    else
+                    {
+                        std::cout << "Not enough GMM parameters, effect model not inserted !" << std::endl;
+                    }
+                }
+                for(auto epd : ms.effect_pred)
+                {
+                    // Process values - this should probably go in some utils/processign file:
+                    int pos = 0;
+                    std::vector<std::string> tokens;
+                    std::string delimiter = " ";
+                    while ((pos = epd.value.find(delimiter)) != std::string::npos)
+                    {
+                        tokens.push_back(epd.value.substr(0, pos));
+                        epd.value.erase(0, pos + delimiter.length());
+                    }
+                    if(tokens.size() > 1)
+                    {
+                        ms_.insertGPEffectModel(epd.key, std::stoi(tokens.at(0)), tokens.at(1));
+                    }
+                    else
+                    {
+                        std::cout << "Not enough GP parameters, effect model not inserted !" << std::endl;
+                    }
+                }
+                int motion_count=0;
+                for(auto motion : ms.motions)
+                {
+                    std::cout << motion.type << std::endl;
+                    // For now we stupidly switch-case for values:
+                    const std::string m_types[2] = {"DMP", "Trajectory"};
+                    std::vector<std::string> m_types_(m_types, m_types + sizeof(m_types)  / sizeof(m_types[0]) );
+                    int this_type = find(m_types_.begin(), m_types_.end(), motion.type) - m_types_.begin();
+                    Motion * newMotion;
+
+                    int data_index = 0;
+                    std::map<std::string, std::vector<double>> params;
+                    for(auto i : motion.data.layout.dim)
+                    {
+                        int dim_size = i.size;
+                        std::string dim_label = i.label;
+                        std::vector<double> values(motion.data.data.begin() + data_index, motion.data.data.begin() + data_index + dim_size);
+                        params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
+                        data_index += i.size;
+                    }
+                    switch(this_type)
+                    {
+                        case 0: // DMP
+                            std::cout << "> DMP" << std::endl;
+                            newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
+                        break;
+                        case 1: // Trajectory
+                            std::cout << "> Trajectory" << std::endl;
+                            newMotion = new TrajectoryContainer(params["points_x"], params["points_y"]);
+                        break;
+                        default:
+                            std::cout << "This motion is not implemented yet ; It has not been added to the sequence. " << std::endl;
+                        break;
+                    }
+                    ms_.insertMotion(motion_count, newMotion);
+                    motion_count += 1;
+                }
+                auto current_sequences = (ades_to_update->getMotionSequences());
+                // This function doesn't exist but should probably be added :
+                // ades_to_update->modifyMotionSequence(newMotionSequences);
+                if ( current_sequences.find(ms.sequence_name) == current_sequences.end() )
+                {
+                    std::cout << "Motion sequence does not exist in this ADES ; inserting it." << std::endl;
+                    ades_to_update->insertMotionSequence(ms.sequence_name, ms_);
+
+                }
+                else
+                {
+                    // remove the old one, store the new one :
+                    ades_to_update->removeMotionSequence(ms.sequence_name);
+                    ades_to_update->insertMotionSequence(ms.sequence_name, ms_);
+                }
+            }
+        } 
+        result = true; 
+     
+    }
+    else
+    {
+        std::cout << "ADES " << rq.ades_name << " not in DB, store it first" << std::endl;
+        std::cout << "no update has been performed." << std::endl;
+    }
+   rp.success = result;
 
 }
 
@@ -325,7 +466,7 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
 {
     bool alreadyExists = (database.isInDB(rq.ades_name));
     bool stillThere = alreadyExists;
-    std::cout << "DEL : " << rq.ades_name << " is" << (alreadyExists ? " " : " not") << " in DB." << std::endl;
+    std::cout << "DEL : " << rq.ades_name << " is" << (alreadyExists ? " " : " not ") << "in DB." << std::endl;
     if( alreadyExists )
     {
         database.removeAdesByName(rq.ades_name);
@@ -345,9 +486,6 @@ bool Adesdb_ros::run()
 	}
     std::cout << "Take them!" << std::endl;
    
-    // Serialiaze before quitting 
-    //database.serialize();
-
 	return true;
 }
 

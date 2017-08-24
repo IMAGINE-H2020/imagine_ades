@@ -510,7 +510,7 @@ int main(int argc, char** argv)
 
     ros_database.run();
 
-	std::cout << "Done" << std::endl;
+	std::cout << "Done." << std::endl;
 	return 0;
 }
 

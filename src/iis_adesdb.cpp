@@ -271,6 +271,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
                     params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
                     data_index += i.size;
                 }
+		std::vector<std::vector<double>> points;
                 switch(this_type)
                 {
                     case 0: // DMP
@@ -279,7 +280,11 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
                     break;
                     case 1: // Trajectory
                         std::cout << "> Trajectory" << std::endl;
-                        newMotion = new TrajectoryContainer(params["points_x"], params["points_y"]);
+			for(auto p : params)
+			{
+				points.push_back(p.second);
+			}
+                        newMotion = new TrajectoryContainer(points);
                     break;
                     default:
                         std::cout << "This motion is not implemented yet ; It has not been added to the sequence. " << std::endl;
@@ -405,6 +410,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
                         params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
                         data_index += i.size;
                     }
+		std::vector<std::vector<double>> points;
                     switch(this_type)
                     {
                         case 0: // DMP
@@ -412,8 +418,12 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
                             newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
                         break;
                         case 1: // Trajectory
-                            std::cout << "> Trajectory" << std::endl;
-                            newMotion = new TrajectoryContainer(params["points_x"], params["points_y"]);
+				std::cout << "> Trajectory" << std::endl;
+				for(auto p : params)
+				{
+					points.push_back(p.second);
+				}
+				newMotion = new TrajectoryContainer(points);
                         break;
                         default:
                             std::cout << "This motion is not implemented yet ; It has not been added to the sequence. " << std::endl;
@@ -502,7 +512,7 @@ int main(int argc, char** argv)
 	//init the ROS node
 	ros::init(argc, argv, "adesdb_node");
 	ros::NodeHandle nh;
-    std::cout << "Provided parameters:" << std::endl;
+	std::cout << "Provided parameters:" << std::endl;
 	std::cout << "--home : " << vm["home"].as<std::string>() << std::endl;
 	std::cout << "--version : " << vm["version"].as<int>() << std::endl;
 

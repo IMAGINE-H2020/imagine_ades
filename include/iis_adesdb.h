@@ -7,7 +7,7 @@
 #include <std_msgs/MultiArrayDimension.h>
 //#include "iis_adesdb/MotionContainer.h"
 
-#include <libades/libades.h>
+#include <libades.h>
 #include "iis_libades_ros/Dummy.h"
 #include "iis_libades_ros/ListAdes.h"
 #include "iis_libades_ros/StoreAdes.h"

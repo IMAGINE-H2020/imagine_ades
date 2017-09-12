@@ -72,6 +72,16 @@ if(NOT LIBGP_LIBRARY)
   message(FATAL_ERROR "LIBGP_LIBRARY not found!")
 endif()
 
+# required by libgp
+find_path(EIGEN_INCLUDE_DIR
+  NAMES Eigen
+  PATHS /usr/include/eigen3/
+)
+if(NOT EIGEN_INCLUDE_DIR)
+  message(FATAL_ERROR "EIGEN_INCLUDE_DIR not found!")
+endif()
+
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -189,6 +199,8 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${LIBADES_INCLUDE_DIR}
+  ${EIGEN_INCLUDE_DIR}
 )
 
 ## Declare a C++ library

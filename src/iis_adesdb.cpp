@@ -28,16 +28,16 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
 
 Adesdb_ros::~Adesdb_ros()
 {
-    for(auto ades_ : database.listAdes())
+/*    for(auto ades_ : database.listAdes())
     {
         for(auto ms_ : ades_.getMotionSequences())
         {
             for(auto mt_ : ms_.second.getMotions())
             {
-                //delete mt_;
+                delete mt_;
             }
         }
-    }
+    }*/
 }
 
 

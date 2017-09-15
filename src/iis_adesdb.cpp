@@ -121,13 +121,37 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
 
             for(auto epb : sequence.second.getGMMEffectModels())
             {
+                // For each effect prob model
                 iis_libades_ros::KeyValPair effect;
                 effect.key = epb.first;
-                effect.value = std::to_string(epb.second.Dimensionality())+" "+std::to_string(epb.second.Gaussians());
+                effect.value = std::to_string(epb.second.Dimensionality())+" "+std::to_string(epb.second.Gaussians())+" ";
+                for(int ig = 0 ; ig < epb.second.Gaussians() ; ig++)
+                {
+                    auto model = epb.second.Component(ig);
+                    auto mean = model.Mean();
+                    auto cov = model.Covariance();
+                    std::cout << "Gaussian means : " << std::flush;
+                    for(auto m : mean)
+                    {
+                       effect.value += std::to_string(m)+" ";
+                       std::cout << m << " " << std::flush;
+                    }
+                    effect.value += ", ";
+                    std::cout << std::endl << "cov size : " << size(cov) << std::endl;
+                    std::cout << "Gaussian covs : " << std::flush;
+                    for(auto cv : cov)
+                    {
+                        effect.value += std::to_string(cv)+" ";
+                       std::cout << cv << " " << std::flush;
+                    }
+                    effect.value += "; ";
+                    std::cout << "----------" << std::endl;
+                }
                 mo_seq_.effect_prob.push_back(effect);
             }
             for(auto epd : sequence.second.getGPEffectModels())
             {
+                // For each effect model
                 iis_libades_ros::KeyValPair effect;
                 effect.key = epd.first;
                 effect.value = std::to_string(epd.second.get_input_dim());
@@ -167,7 +191,6 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                         //std::cout << val << ", " << std::flush;
                         motion_data.data.push_back((double)val);                        
                     }
-                    std::cout << std::endl;
                 }
                 mt.data = (motion_data);
                 mo_seq_.motions.push_back(mt);

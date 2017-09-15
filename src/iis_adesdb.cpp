@@ -23,21 +23,20 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_ades= nh_.advertiseService("adesdb/update_ades", &Adesdb_ros::update_ades_srv, this);
     ss_delete_ades= nh_.advertiseService("adesdb/delete_ades", &Adesdb_ros::delete_ades_srv, this);
 
-    shutdown = false;
 }
 
 Adesdb_ros::~Adesdb_ros()
 {
-    for(auto ades_ : database.listAdes())
+/*    for(auto ades_ : database.listAdes())
     {
         for(auto ms_ : ades_.getMotionSequences())
         {
             for(auto mt_ : ms_.second.getMotions())
             {
-                //delete mt_;
+                delete mt_;
             }
         }
-    }
+    }*/
 }
 
 
@@ -504,10 +503,7 @@ bool Adesdb_ros::run()
 {
     std::cout << "Starting main loop." << std::endl;
 	// Wait for callback from action topic to be called.
-	while(nh_.ok() && !shutdown)
-	{
-		ros::spinOnce();
-	}
+	ros::spin();
     std::cout << "Spinning finished, exiting ..." << std::endl;
    
 	return true;

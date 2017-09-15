@@ -23,20 +23,21 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_ades= nh_.advertiseService("adesdb/update_ades", &Adesdb_ros::update_ades_srv, this);
     ss_delete_ades= nh_.advertiseService("adesdb/delete_ades", &Adesdb_ros::delete_ades_srv, this);
 
+    shutdown = false;
 }
 
 Adesdb_ros::~Adesdb_ros()
 {
-/*    for(auto ades_ : database.listAdes())
+    for(auto ades_ : database.listAdes())
     {
         for(auto ms_ : ades_.getMotionSequences())
         {
             for(auto mt_ : ms_.second.getMotions())
             {
-                delete mt_;
+                //delete mt_;
             }
         }
-    }*/
+    }
 }
 
 
@@ -104,7 +105,6 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
     fail_mo_seq_.input_types = std::vector<std::string>();
     fail_mo_seq_.effect_prob = std::vector<iis_libades_ros::KeyValPair>();
     fail_mo_seq_.effect_pred = std::vector<iis_libades_ros::KeyValPair>();
-    fail_mo_seq_.motions = std::vector<iis_libades_ros::Motion>();
 
     if(database.isInDB(rq.ades_name))
     {
@@ -502,8 +502,12 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
 bool Adesdb_ros::run()
 {
     std::cout << "Starting main loop." << std::endl;
-	// Wait for callback from action topic to be called.
-	ros::spin();
+	// Wait for callback from action topic to be called.*
+    while(nh_.ok() && !shutdown)
+    {
+        ros::spinOnce();
+        ros::Duration(0.05).sleep();
+    }
     std::cout << "Spinning finished, exiting ..." << std::endl;
    
 	return true;
@@ -543,3 +547,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+/* File : iis_adesdb.cpp
+ * 
+ * @description : This node implements the methods for environmentSIM class (robot action simulator) in the block push experiment.
+*/

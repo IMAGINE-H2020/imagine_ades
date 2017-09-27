@@ -13,6 +13,7 @@
 #include "iis_libades_ros/StoreAdes.h"
 #include "iis_libades_ros/UpdateAdes.h"
 #include "iis_libades_ros/DeleteAdes.h"
+#include "iis_libades_ros/UpdateEffects.h"
 #include "iis_libades_ros/GetAdesPreConds.h"
 #include "iis_libades_ros/GetAdesEffects.h"
 #include "iis_libades_ros/GetAdesMotions.h"
@@ -34,6 +35,7 @@ class Adesdb_ros
         ros::ServiceServer ss_store_ades;
         ros::ServiceServer ss_update_ades;
         ros::ServiceServer ss_delete_ades;
+        ros::ServiceServer ss_update_effect_models;
 
 
         // some flags
@@ -55,5 +57,7 @@ class Adesdb_ros
         bool store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_libades_ros::StoreAdes::Response &rp);
         bool update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp);
         bool delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp);
+
+        bool update_effect_models_srv(iis_libades_ros::UpdateEffects::Request &rq, iis_libades_ros::UpdateEffects::Response &rp);
 
 };

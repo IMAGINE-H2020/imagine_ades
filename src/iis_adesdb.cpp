@@ -14,7 +14,6 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     database(home, version)
 {
     ss_get_precond = nh_.advertiseService("adesdb/get_preconds", &Adesdb_ros::get_preconds_srv, this);
-    
     ss_get_effect = nh_.advertiseService("adesdb/get_effects", &Adesdb_ros::get_effects_srv, this);
     ss_get_motion = nh_.advertiseService("adesdb/get_motions", &Adesdb_ros::get_motions_srv, this);
 
@@ -23,12 +22,14 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_ades= nh_.advertiseService("adesdb/update_ades", &Adesdb_ros::update_ades_srv, this);
     ss_delete_ades= nh_.advertiseService("adesdb/delete_ades", &Adesdb_ros::delete_ades_srv, this);
 
+    ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
+
     shutdown = false;
 }
 
 Adesdb_ros::~Adesdb_ros()
 {
-    for(auto ades_ : database.listAdes())
+/*    for(auto ades_ : database.listAdes())
     {
         for(auto ms_ : ades_.getMotionSequences())
         {
@@ -38,6 +39,7 @@ Adesdb_ros::~Adesdb_ros()
             }
         }
     }
+*/
 }
 
 
@@ -499,6 +501,54 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
     rp.success = alreadyExists & !stillThere; 
 }
 
+//ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
+bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Request &rq, iis_libades_ros::UpdateEffects::Response &rp)
+{
+    std::cout << "Received sample: " << rq.ades_name << ", " << rq.samples.size() << std::endl;
+
+    if(database.isInDB(rq.ades_name))
+    {
+        std::cout << "Ades known" << std::endl;
+        //auto ades = database.getAdesByName(rq.ades_name);
+        auto ades = database.updateAdesByName(rq.ades_name);
+        auto all_ms_ = ades->getMotionSequences();
+        if(!all_ms_.empty())
+        {
+            auto ms_ = ades->modifyMotionSequence(all_ms_.begin()->first);
+            // We assume there can be only one motion sequence
+            for(auto s : rq.samples)
+            {
+                auto gmms_ = ms_->getGMMEffectModels();
+                if( gmms_.find(s.effect_type) != gmms_.end() )
+                {
+                    std::cout << "Ades GMM known" << std::endl;
+                    ms_->updateGMMEffectModel(s.effect_type, s.input, s.effect);
+                }
+                auto gps_ = ms_->getGPEffectModels();
+                if( gps_.find(s.effect_type) != gps_.end() )
+                {
+                    std::cout << "Ades GP known" << std::endl;
+                    ms_->updateGPEffectModel(s.effect_type, s.input, s.effect);
+                }
+                else
+                {
+                    std::cout << "Unknown effect type" << std::endl;
+                }
+            }
+        }
+        else
+        {
+            std::cout << "No motion sequence to modify, no update done." << std::endl;
+            rp.success = false;
+        }
+    }
+    else
+    {
+        std::cout << "Unknown ades, no update done." << std::endl;
+        rp.success = false;
+    }
+}
+
 bool Adesdb_ros::run()
 {
     std::cout << "Starting main loop." << std::endl;
@@ -546,8 +596,3 @@ int main(int argc, char** argv)
 	std::cout << "Done." << std::endl;
 	return 0;
 }
-
-/* File : iis_adesdb.cpp
- * 
- * @description : This node implements the methods for environmentSIM class (robot action simulator) in the block push experiment.
-*/

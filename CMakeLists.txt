@@ -123,6 +123,7 @@ add_message_files(
   Motion.msg
   MotionSequence.msg
   KeyValPair.msg
+  Observation.msg
 #   Message2.msg
 )
 
@@ -137,6 +138,7 @@ add_service_files(
   GetAdesEffects.srv
   GetAdesMotions.srv
   Dummy.srv
+  UpdateEffects.srv
 )
 
 ## Generate actions in the 'action' folder

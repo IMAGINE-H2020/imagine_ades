@@ -139,6 +139,7 @@ add_service_files(
   GetAdesMotions.srv
   Dummy.srv
   UpdateEffects.srv
+  EstimateEffect.srv
 )
 
 ## Generate actions in the 'action' folder

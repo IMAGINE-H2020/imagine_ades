@@ -23,25 +23,14 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_delete_ades= nh_.advertiseService("adesdb/delete_ades", &Adesdb_ros::delete_ades_srv, this);
 
     ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
+    ss_estimate_effect = nh_.advertiseService("adesdb/estimate_effect", &Adesdb_ros::estimate_effect_srv, this);
 
     shutdown = false;
 }
 
 Adesdb_ros::~Adesdb_ros()
 {
-/*    for(auto ades_ : database.listAdes())
-    {
-        for(auto ms_ : ades_.getMotionSequences())
-        {
-            for(auto mt_ : ms_.second.getMotions())
-            {
-                //delete mt_;
-            }
-        }
-    }
-*/
 }
-
 
 bool Adesdb_ros::list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libades_ros::ListAdes::Response &rp)
 {
@@ -132,20 +121,21 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                     auto mean = model.Mean();
                     auto cov = model.Covariance();
                     std::cout << "Gaussian means : " << std::flush;
+                    effect.value += " means: ";
                     for(auto m : mean)
                     {
                        effect.value += std::to_string(m)+" ";
                        std::cout << m << " " << std::flush;
                     }
-                    effect.value += ", ";
                     std::cout << std::endl << "cov size : " << size(cov) << std::endl;
                     std::cout << "Gaussian covs : " << std::flush;
+                    effect.value += " covs: ";
                     for(auto cv : cov)
                     {
                         effect.value += std::to_string(cv)+" ";
-                       std::cout << cv << " " << std::flush;
+                        std::cout << cv << " " << std::flush;
                     }
-                    effect.value += "; ";
+                    effect.value += ";\n";
                     std::cout << "----------" << std::endl;
                 }
                 mo_seq_.effect_prob.push_back(effect);
@@ -246,6 +236,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
                     tokens.push_back(epb.value.substr(0, pos));
                     epb.value.erase(0, pos + delimiter.length());
                 }
+                std::cout << "Token size: " << tokens.size() << std::endl;
                 if(tokens.size() > 1)
                 {
                     ms_.insertGMMEffectModel(epb.key, std::stoi(tokens.at(0)), std::stoi(tokens.at(1)));
@@ -546,6 +537,42 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
     {
         std::cout << "Unknown ades, no update done." << std::endl;
         rp.success = false;
+    }
+}
+
+bool Adesdb_ros::estimate_effect_srv(iis_libades_ros::EstimateEffect::Request &rq, iis_libades_ros::EstimateEffect::Response &rp)
+{
+    rp.value = 0.0;
+    rp.probability = -1;
+    std::cout << rq.ades_name << ", " << rq.sequence_name << ", " << rq.effect_type << ", " /*<< rq.input*/ << std::endl;
+    if(database.isInDB(rq.ades_name))
+    {
+        auto ades = database.getAdesByName(rq.ades_name);
+        auto all_ms_ = ades.getMotionSequences();
+        if( all_ms_.find(rq.sequence_name) != all_ms_.end() )
+        {
+            double effect_value=0.0;
+            auto sequence = all_ms_.find(rq.sequence_name);
+            if( (sequence->second).getGPEffectModels().find(rq.effect_type) != (sequence->second).getGPEffectModels().end() )
+            {
+                //auto effect_model = (sequence->second).getGPEffectModels().at(rq.effect_type);
+                rp.value = effect_value = (sequence->second).estimateEffect(rq.effect_type, rq.input);
+            }
+            if( (sequence->second).getGMMEffectModels().find(rq.effect_type) != (sequence->second).getGMMEffectModels().end() )
+            {
+                //auto effect_prob_model = (sequence->second).getGMMEffectModels().at(rq.effect_type);
+                rp.probability = (sequence->second).estimateEffectLikelihood(rq.effect_type, rq.input, effect_value);
+            }
+        }
+        else
+        {
+            std::cout << "Sequence name unknown, can't estimate effect." << std::endl;
+        }
+
+    }
+    else
+    {
+        std::cout << "ADES name unknown, can't estimate effect." << std::endl;
     }
 }
 

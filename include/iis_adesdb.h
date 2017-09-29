@@ -5,18 +5,22 @@
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/MultiArrayLayout.h>
 #include <std_msgs/MultiArrayDimension.h>
-//#include "iis_adesdb/MotionContainer.h"
 
 #include <libades.h>
 #include "iis_libades_ros/Dummy.h"
+
 #include "iis_libades_ros/ListAdes.h"
 #include "iis_libades_ros/StoreAdes.h"
 #include "iis_libades_ros/UpdateAdes.h"
 #include "iis_libades_ros/DeleteAdes.h"
+
 #include "iis_libades_ros/UpdateEffects.h"
+#include "iis_libades_ros/EstimateEffect.h"
+
 #include "iis_libades_ros/GetAdesPreConds.h"
 #include "iis_libades_ros/GetAdesEffects.h"
 #include "iis_libades_ros/GetAdesMotions.h"
+
 #include "iis_libades_ros/KeyValPair.h"
 #include "iis_libades_ros/Motion.h"
 #include "iis_libades_ros/MotionSequence.h"
@@ -36,7 +40,7 @@ class Adesdb_ros
         ros::ServiceServer ss_update_ades;
         ros::ServiceServer ss_delete_ades;
         ros::ServiceServer ss_update_effect_models;
-
+        ros::ServiceServer ss_estimate_effect;
 
         // some flags
         bool shutdown;
@@ -59,5 +63,6 @@ class Adesdb_ros
         bool delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp);
 
         bool update_effect_models_srv(iis_libades_ros::UpdateEffects::Request &rq, iis_libades_ros::UpdateEffects::Response &rp);
+        bool estimate_effect_srv(iis_libades_ros::EstimateEffect::Request &rq, iis_libades_ros::EstimateEffect::Response &rp);
 
 };

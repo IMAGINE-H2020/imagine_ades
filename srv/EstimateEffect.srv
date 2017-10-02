@@ -1,0 +1,7 @@
+string ades_name
+string sequence_name
+string effect_type
+float64[] input
+---
+float64 value
+float64 probability

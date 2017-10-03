@@ -120,23 +120,23 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                     auto model = epb.second.Component(ig);
                     auto mean = model.Mean();
                     auto cov = model.Covariance();
-                    std::cout << "Gaussian means : " << std::flush;
+                    //std::cout << "Gaussian means : " << std::flush;
                     effect.value += " means: ";
                     for(auto m : mean)
                     {
                        effect.value += std::to_string(m)+" ";
-                       std::cout << m << " " << std::flush;
+                       //std::cout << m << " " << std::flush;
                     }
-                    std::cout << std::endl << "cov size : " << size(cov) << std::endl;
-                    std::cout << "Gaussian covs : " << std::flush;
+                    //std::cout << std::endl << "cov size : " << size(cov) << std::endl;
+                    //std::cout << "Gaussian covs : " << std::flush;
                     effect.value += " covs: ";
                     for(auto cv : cov)
                     {
                         effect.value += std::to_string(cv)+" ";
-                        std::cout << cv << " " << std::flush;
+                        //std::cout << cv << " " << std::flush;
                     }
                     effect.value += ";\n";
-                    std::cout << "----------" << std::endl;
+                    //std::cout << "----------" << std::endl;
                 }
                 mo_seq_.effect_prob.push_back(effect);
             }

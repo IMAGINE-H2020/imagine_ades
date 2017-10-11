@@ -17,70 +17,78 @@ find_package(catkin REQUIRED COMPONENTS
 
 set(CMAKE_MODULE_PATH "/usr/lib/cmake")
 message(STATUS ${CMAKE_MODULE_PATH})
+
+
+# IMPORTED TARGETS
+
+# LibADES
+find_package(LibADES REQUIRED)
+if(LIBADES_INCLUDE_DIRS)
+	message(STATUS "LibADES found (include: ${LIBADES_INCLUDE_DIRS})")
+endif()
+add_library(libADES INTERFACE IMPORTED)
+set_property(TARGET libADES PROPERTY
+	INTERFACE_INCLUDE_DIRECTORIES ${LIBADES_INCLUDE_DIRS})
+set_property(TARGET libADES PROPERTY
+ 	INTERFACE_LINK_LIBRARIES ${LIBADES_LIBRARIES})
+
+# Boost
 find_package(Boost REQUIRED COMPONENTS system serialization filesystem program_options)
+add_library(boost INTERFACE IMPORTED)
+set_property(TARGET boost PROPERTY
+ 	INTERFACE_INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR})
+set_property(TARGET boost PROPERTY
+  	INTERFACE_LINK_LIBRARIES ${Boost_LIBRARIES})
 
-#find_package(libimagine-ades)
-find_path(LIBADES_INCLUDE_DIR
-  NAMES libades.h
-  PATHS /usr/include/libades/ /usr/local/include/libades/
-)
-if(NOT LIBADES_INCLUDE_DIR)
-    message(FATAL_ERROR "LIBADES_INCLUDE_DIR not found!")
-endif()
+# Armadillo
+find_package(Armadillo)
+add_library(armadillo INTERFACE IMPORTED)
+set_property(TARGET armadillo PROPERTY
+  	INTERFACE_INCLUDE_DIRECTORIES ${ARMADILLO_INCLUDE_DIR})
+set_property(TARGET armadillo PROPERTY
+  	INTERFACE_LINK_LIBRARIES ${ARMADILLO_LIBRARIES})
 
-
-find_library(LIBADES_LIBRARY
-  NAMES libimagine-ades.so
-  PATHS /usr/lib//usr/local/lib/
-)
-if(NOT LIBADES_LIBRARY)
-    message(FATAL_ERROR "LIBADES_LIBRARY not found!")
-endif()
-
-find_path(MLPACK_INCLUDE_DIR
+#MLPack
+find_path(MLPack_INCLUDE_DIR
   NAMES core.hpp prereqs.hpp
   PATHS /usr/local/include/mlpack/ /usr/include/mlpack/
 )
-if(NOT MLPACK_INCLUDE_DIR)
-  message(FATAL_ERROR "MLPACK_INCLUDE_DIR not found!")
+if(NOT MLPack_INCLUDE_DIR)
+  message(FATAL_ERROR "MLPack_INCLUDE_DIR not found!")
 endif()
-
-
-find_library(MLPACK_LIBRARY
+find_library(MLPack_LIBRARIES
   NAMES libmlpack.so
   PATHS /usr/local/lib/
 )
-if(NOT MLPACK_LIBRARY)
-  message(FATAL_ERROR "MLPACK_LIBRARY not found!")
+if(NOT MLPack_LIBRARIES)
+  message(FATAL_ERROR "MLPack_LIBRARIES not found!")
 endif()
+add_library(mlpack INTERFACE IMPORTED)
+set_property(TARGET mlpack PROPERTY
+  INTERFACE_INCLUDE_DIRECTORIES ${MLPackINCLUDE_DIR})
+set_property(TARGET mlpack PROPERTY
+  INTERFACE_LINK_LIBRARIES ${MLPack_LIBRARIES})
 
-
-find_path(LIBGP_INCLUDE_DIR
+#LibGP
+find_path(LibGP_INCLUDE_DIR
   NAMES gp.h
   PATHS /usr/local/include/gp/
 )
-if(NOT LIBGP_INCLUDE_DIR)
-  message(FATAL_ERROR "LIBGP_INCLUDE_DIR not found!")
+if(NOT LibGP_INCLUDE_DIR)
+  message(FATAL_ERROR "LibGP_INCLUDE_DIR not found!")
 endif()
-
-
-find_library(LIBGP_LIBRARY
+find_library(LibGP_LIBRARIES
   NAMES libgp.a
   PATHS /usr/local/lib/
 )
-if(NOT LIBGP_LIBRARY)
-  message(FATAL_ERROR "LIBGP_LIBRARY not found!")
+if(NOT LibGP_LIBRARIES)
+  message(FATAL_ERROR "LibGP_LIBRARIES not found!")
 endif()
-
-# required by libgp
-find_path(EIGEN_INCLUDE_DIR
-  NAMES Eigen
-  PATHS /usr/include/eigen3/
-)
-if(NOT EIGEN_INCLUDE_DIR)
-  message(FATAL_ERROR "EIGEN_INCLUDE_DIR not found!")
-endif()
-
+add_library(libgp INTERFACE IMPORTED)
+set_property(TARGET libgp PROPERTY
+  INTERFACE_INCLUDE_DIRECTORIES ${LibGP_INCLUDE_DIR})
+set_property(TARGET libgp PROPERTY
+  INTERFACE_LINK_LIBRARIES ${LibGP_LIBRARIES})
 
 
 ## System dependencies are found with CMake's conventions
@@ -202,8 +210,6 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-  ${LIBADES_INCLUDE_DIR}
-  ${EIGEN_INCLUDE_DIR}
 )
 
 ## Declare a C++ library
@@ -237,10 +243,10 @@ add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(
     adesdb
     ${catkin_LIBRARIES}
-    ${LIBADES_LIBRARY}
-    ${Boost_LIBRARIES}
-    ${MLPACK_LIBRARY}
-    ${LIBGP_LIBRARY}
+    libADES
+    boost
+    mlpack
+    libgp
 )
 
 #############

@@ -6,7 +6,7 @@
 #include <std_msgs/MultiArrayLayout.h>
 #include <std_msgs/MultiArrayDimension.h>
 
-#include <libades.h>
+#include <libades/libades.h>
 #include "iis_libades_ros/Dummy.h"
 
 #include "iis_libades_ros/ListAdes.h"

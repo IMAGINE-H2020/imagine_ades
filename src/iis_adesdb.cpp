@@ -114,7 +114,7 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
                 // For each effect prob model
                 iis_libades_ros::KeyValPair effect;
                 effect.key = epb.first;
-                effect.value = std::to_string(epb.second.Dimensionality())+" "+std::to_string(epb.second.Gaussians())+" ";
+                effect.value = std::to_string(epb.second.Dimensionality())+" "+std::to_string(epb.second.Gaussians())+"\n";
                 for(int ig = 0 ; ig < epb.second.Gaussians() ; ig++)
                 {
                     auto model = epb.second.Component(ig);
@@ -505,8 +505,9 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
         auto all_ms_ = ades->getMotionSequences();
         if(!all_ms_.empty())
         {
-            auto ms_ = ades->modifyMotionSequence(all_ms_.begin()->first);
             // We assume there can be only one motion sequence
+            auto ms_ = ades->modifyMotionSequence(all_ms_.begin()->first);
+
             for(auto s : rq.samples)
             {
                 auto gmms_ = ms_->getGMMEffectModels();
@@ -514,17 +515,20 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
                 {
                     std::cout << "Ades GMM known" << std::endl;
                     ms_->updateGMMEffectModel(s.effect_type, s.input, s.effect);
+                    std::cout << "GMM updated" << std::endl;
                 }
                 auto gps_ = ms_->getGPEffectModels();
                 if( gps_.find(s.effect_type) != gps_.end() )
                 {
                     std::cout << "Ades GP known" << std::endl;
                     ms_->updateGPEffectModel(s.effect_type, s.input, s.effect);
+                    std::cout << "GP updated" << std::endl;
                 }
                 else
                 {
                     std::cout << "Unknown effect type" << std::endl;
                 }
+                rp.success = true; // to refine to take into account all model updates
             }
         }
         else

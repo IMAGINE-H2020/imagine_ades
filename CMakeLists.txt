@@ -69,6 +69,15 @@ set_property(TARGET mlpack PROPERTY
 set_property(TARGET mlpack PROPERTY
   INTERFACE_LINK_LIBRARIES ${MLPack_LIBRARIES})
 
+# required by libgp
+find_path(EIGEN_INCLUDE_DIR
+  NAMES Eigen
+  PATHS /usr/include/eigen3/
+)
+if(NOT EIGEN_INCLUDE_DIR)
+  message(FATAL_ERROR "EIGEN_INCLUDE_DIR not found!")
+endif()
+
 #LibGP
 find_path(LibGP_INCLUDE_DIR
   NAMES gp.h
@@ -86,10 +95,9 @@ if(NOT LibGP_LIBRARIES)
 endif()
 add_library(libgp INTERFACE IMPORTED)
 set_property(TARGET libgp PROPERTY
-  INTERFACE_INCLUDE_DIRECTORIES ${LibGP_INCLUDE_DIR})
+  INTERFACE_INCLUDE_DIRECTORIES ${LibGP_INCLUDE_DIR} ${EIGEN_INCLUDE_DIR})
 set_property(TARGET libgp PROPERTY
   INTERFACE_LINK_LIBRARIES ${LibGP_LIBRARIES})
-
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

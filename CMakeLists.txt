@@ -22,15 +22,15 @@ message(STATUS ${CMAKE_MODULE_PATH})
 # IMPORTED TARGETS
 
 # LibADES
-find_package(LibADES REQUIRED)
-if(LIBADES_INCLUDE_DIRS)
-	message(STATUS "LibADES found (include: ${LIBADES_INCLUDE_DIRS})")
+find_package(ADES REQUIRED)
+if(ADES_INCLUDE_DIRS)
+	message(STATUS "LibADES found (include: ${ADES_INCLUDE_DIRS})")
 endif()
 add_library(libADES INTERFACE IMPORTED)
 set_property(TARGET libADES PROPERTY
-	INTERFACE_INCLUDE_DIRECTORIES ${LIBADES_INCLUDE_DIRS})
+	INTERFACE_INCLUDE_DIRECTORIES ${ADES_INCLUDE_DIRS})
 set_property(TARGET libADES PROPERTY
- 	INTERFACE_LINK_LIBRARIES ${LIBADES_LIBRARIES})
+ 	INTERFACE_LINK_LIBRARIES ${ADES_LIBRARIES})
 
 # Boost
 find_package(Boost REQUIRED COMPONENTS system serialization filesystem program_options)
@@ -69,6 +69,15 @@ set_property(TARGET mlpack PROPERTY
 set_property(TARGET mlpack PROPERTY
   INTERFACE_LINK_LIBRARIES ${MLPack_LIBRARIES})
 
+# required by libgp
+find_path(EIGEN_INCLUDE_DIR
+  NAMES Eigen
+  PATHS /usr/include/eigen3/
+)
+if(NOT EIGEN_INCLUDE_DIR)
+  message(FATAL_ERROR "EIGEN_INCLUDE_DIR not found!")
+endif()
+
 #LibGP
 find_path(LibGP_INCLUDE_DIR
   NAMES gp.h
@@ -86,10 +95,9 @@ if(NOT LibGP_LIBRARIES)
 endif()
 add_library(libgp INTERFACE IMPORTED)
 set_property(TARGET libgp PROPERTY
-  INTERFACE_INCLUDE_DIRECTORIES ${LibGP_INCLUDE_DIR})
+  INTERFACE_INCLUDE_DIRECTORIES ${LibGP_INCLUDE_DIR} ${EIGEN_INCLUDE_DIR})
 set_property(TARGET libgp PROPERTY
   INTERFACE_LINK_LIBRARIES ${LibGP_LIBRARIES})
-
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

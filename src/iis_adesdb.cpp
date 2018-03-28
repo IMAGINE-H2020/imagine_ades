@@ -271,7 +271,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
             {
                 std::cout << motion.type << std::endl;
                 // For now we stupidly switch-case for values:
-                const std::string m_types[2] = {"DMP", "Trajectory"};
+                const std::string m_types[] = {"DMP", "Trajectory", "Unscrewing"};
                 std::vector<std::string> m_types_(m_types, m_types + sizeof(m_types)  / sizeof(m_types[0]) );
                 int this_type = find(m_types_.begin(), m_types_.end(), motion.type) - m_types_.begin();
                 Motion * newMotion;
@@ -300,6 +300,10 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
 				points.push_back(p.second);
 			}
                         newMotion = new TrajectoryContainer(points);
+                    break;
+                    case 2: // Unscrewing
+                        std::cout << "> Unscrewing" << std::endl;
+                        newMotion = new UnscrewContainer();
                     break;
                     default:
                         std::cout << "This motion is not implemented yet ; It has not been added to the sequence. " << std::endl;
@@ -410,7 +414,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
                 {
                     std::cout << motion.type << std::endl;
                     // For now we stupidly switch-case for values:
-                    const std::string m_types[2] = {"DMP", "Trajectory"};
+                    const std::string m_types[] = {"DMP", "Trajectory", "Unscrewing"};
                     std::vector<std::string> m_types_(m_types, m_types + sizeof(m_types)  / sizeof(m_types[0]) );
                     int this_type = find(m_types_.begin(), m_types_.end(), motion.type) - m_types_.begin();
                     Motion * newMotion;
@@ -439,6 +443,10 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
 					points.push_back(p.second);
 				}
 				newMotion = new TrajectoryContainer(points);
+                        break;
+                        case 2: // Unscrewing
+                            std::cout << "> Unscrewing" << std::endl;
+                            newMotion = new UnscrewContainer();
                         break;
                         default:
                             std::cout << "This motion is not implemented yet ; It has not been added to the sequence. " << std::endl;

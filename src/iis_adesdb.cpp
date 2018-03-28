@@ -282,16 +282,18 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
                 {
                     int dim_size = i.size;
                     std::string dim_label = i.label;
+                    std::cout << "dim labl: " << i.label << std::endl;
                     std::vector<double> values(motion.data.data.begin() + data_index, motion.data.data.begin() + data_index + dim_size);
                     params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
                     data_index += i.size;
                 }
-		std::vector<std::vector<double>> points;
+                std::vector<std::vector<double>> points;
                 switch(this_type)
                 {
                     case 0: // DMP
                         std::cout << "> DMP" << std::endl;
-                        newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
+                        newMotion = new DMPContainer(params["K"],params["D"],params["weights"],params["psiMatrix"]);
+                        //newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
                     break;
                     case 1: // Trajectory
                         std::cout << "> Trajectory" << std::endl;
@@ -429,12 +431,13 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
                         params.insert(std::pair<std::string, std::vector<double>>(dim_label, values));
                         data_index += i.size;
                     }
-		std::vector<std::vector<double>> points;
+                    std::vector<std::vector<double>> points;
                     switch(this_type)
                     {
                         case 0: // DMP
                             std::cout << "> DMP" << std::endl;
-                            newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
+                            //newMotion = new DMPContainer(params["gaussiansCenters"],params["gaussiansVariances"],params["weights"],params["dmpCoeffs"]);
+                            newMotion = new DMPContainer(params["K"],params["D"],params["weights"],params["psiMatrix"]);
                         break;
                         case 1: // Trajectory
 				std::cout << "> Trajectory" << std::endl;

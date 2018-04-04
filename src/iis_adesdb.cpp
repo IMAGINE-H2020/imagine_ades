@@ -25,6 +25,8 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
     ss_estimate_effect = nh_.advertiseService("adesdb/estimate_effect", &Adesdb_ros::estimate_effect_srv, this);
 
+    db_changed = nh_.advertise<std_msgs::Bool>("adesdb/db_updated", 1);
+
     shutdown = false;
 }
 
@@ -40,6 +42,8 @@ bool Adesdb_ros::list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libad
     {
         rp.ades_list.push_back(ades_.getName());
     }
+
+    return true;
 }
 
 bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq, iis_libades_ros::GetAdesPreConds::Response &rp)
@@ -62,6 +66,8 @@ bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq,
     {
         rp.preconditions.push_back(fail_pc_);
     }
+
+    return true;
 }
 
 bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, iis_libades_ros::GetAdesEffects::Response &rp)
@@ -84,6 +90,8 @@ bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, i
     {
         rp.effects.push_back(fail_ef_);
     }
+
+    return true;
 }
 
 bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, iis_libades_ros::GetAdesMotions::Response &rp)
@@ -193,6 +201,8 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
     {
         rp.motion_sequences.push_back(fail_mo_seq_);
     }
+
+    return true;
 }
 
 
@@ -324,6 +334,11 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
         result = (database.isInDB(rq.ades.ades_name));
     } 
     rp.success = result;
+    std_msgs::Bool t;
+    t.data = true;
+    db_changed.publish(t);
+
+    return true;
 }
 
 bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp)
@@ -485,7 +500,11 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
     }
     std::cout << "Ades nb : " << database.getAdesNb() << std::endl;
     rp.success = result;
+    std_msgs::Bool t;
+    t.data = true;
+    db_changed.publish(t);
 
+    return true;
 }
 
 bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp)
@@ -501,6 +520,13 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
     }
     
     rp.success = alreadyExists & !stillThere; 
+    if( rp.success )
+    {
+        std_msgs::Bool t;
+        t.data = true;
+        db_changed.publish(t);
+    }
+    return true;
 }
 
 //ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
@@ -540,6 +566,9 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
                     std::cout << "Unknown effect type" << std::endl;
                 }
                 rp.success = true; // to refine to take into account all model updates
+                std_msgs::Bool t;
+                t.data = true;
+                db_changed.publish(t);
             }
         }
         else
@@ -553,6 +582,7 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
         std::cout << "Unknown ades, no update done." << std::endl;
         rp.success = false;
     }
+    return true;
 }
 
 bool Adesdb_ros::estimate_effect_srv(iis_libades_ros::EstimateEffect::Request &rq, iis_libades_ros::EstimateEffect::Response &rp)

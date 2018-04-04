@@ -2,6 +2,7 @@
 
 //#include <map>
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/MultiArrayLayout.h>
 #include <std_msgs/MultiArrayDimension.h>
@@ -41,6 +42,8 @@ class Adesdb_ros
         ros::ServiceServer ss_delete_ades;
         ros::ServiceServer ss_update_effect_models;
         ros::ServiceServer ss_estimate_effect;
+
+        ros::Publisher db_changed;
 
         // some flags
         bool shutdown;

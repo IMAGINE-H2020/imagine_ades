@@ -25,7 +25,7 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
     ss_estimate_effect = nh_.advertiseService("adesdb/estimate_effect", &Adesdb_ros::estimate_effect_srv, this);
 
-    db_changed = nh_.advertise<std_msgs::Bool>("adesdb/db_updated", 1);
+    db_changed = nh_.advertise<iis_libades_ros::KeyValPair>("adesdb/db_updated", 1);
 
     shutdown = false;
 }
@@ -334,9 +334,10 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
         result = (database.isInDB(rq.ades.ades_name));
     } 
     rp.success = result;
-    std_msgs::Bool t;
-    t.data = true;
-    db_changed.publish(t);
+    iis_libades_ros::KeyValPair kv;
+    kv.key = rq.ades.ades_name;
+    kv.value = "stored";
+    db_changed.publish(kv);
 
     return true;
 }
@@ -500,9 +501,10 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
     }
     std::cout << "Ades nb : " << database.getAdesNb() << std::endl;
     rp.success = result;
-    std_msgs::Bool t;
-    t.data = true;
-    db_changed.publish(t);
+    iis_libades_ros::KeyValPair kv;
+    kv.key = rq.ades_name;
+    kv.value = "updated";
+    db_changed.publish(kv);
 
     return true;
 }
@@ -522,9 +524,10 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
     rp.success = alreadyExists & !stillThere; 
     if( rp.success )
     {
-        std_msgs::Bool t;
-        t.data = true;
-        db_changed.publish(t);
+        iis_libades_ros::KeyValPair kv;
+        kv.key = rq.ades_name;
+        kv.value = "deleted";
+        db_changed.publish(kv);
     }
     return true;
 }
@@ -566,9 +569,10 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
                     std::cout << "Unknown effect type" << std::endl;
                 }
                 rp.success = true; // to refine to take into account all model updates
-                std_msgs::Bool t;
-                t.data = true;
-                db_changed.publish(t);
+                iis_libades_ros::KeyValPair kv;
+                kv.key = rq.ades_name;
+                kv.value = "updated";
+                db_changed.publish(kv);
             }
         }
         else

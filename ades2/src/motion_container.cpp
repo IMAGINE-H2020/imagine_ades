@@ -75,17 +75,17 @@ namespace ades {
     };
 
 
-    void MotionContainer::run(const char* fmt ...) {
+    Trajectory MotionContainer::run(const ades::TrajectoryPoint& start, const ades::TrajectoryPoint& goal, int num_timestamps) {
         throw runtime_error("No default implementation from base class available!") ;
     };
 
 
-    void MotionContainer::train(const char* fmt ...) {
+    void MotionContainer::train(const std::vector<Trajectory> &trajectories) {
         throw runtime_error("No default implementation from base class available!") ;
     };
 
 
-    void MotionContainer::simulate(const char* fmt ...) {
+    Trajectory MotionContainer::simulate(const ades::TrajectoryPoint& start, const ades::TrajectoryPoint& goal, int num_timestamps) {
         throw runtime_error("No default implementation from base class available!") ;
     }
 

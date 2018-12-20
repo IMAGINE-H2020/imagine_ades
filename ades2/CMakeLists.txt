@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Boost 1.57.0 COMPONENTS system filesystem REQUIRED)
 
 #MySQL Connector
-set(MYSQLCONNECTORCPP_ROOT_DIR /usr/local/mysql/connector-c++-8.0)
+set(MYSQLCONNECTORCPP_ROOT_DIR /home/peter/projects/source/mysql-connector-cpp-install)
 
 find_path(MYSQLCONNECTORCPP_INCLUDE_DIR
         NAMES mysqlx/xdevapi.h
@@ -15,7 +15,7 @@ find_path(MYSQLCONNECTORCPP_INCLUDE_DIR
 
 find_library(MYSQLCONNECTORCPP_LIBRARY
         NAMES libmysqlcppconn8.so
-        PATHS ${MYSQLCONNECTORCPP_ROOT_DIR}/lib/debug ${MYSQLCONNECTORCPP_ROOT_DIR}/lib64/debug
+        PATHS ${MYSQLCONNECTORCPP_ROOT_DIR}/lib ${MYSQLCONNECTORCPP_ROOT_DIR}/lib64
         )
 
 mark_as_advanced(MYSQLCONNECTORCPP_INCLUDE_DIR MYSQLCONNECTORCPP_LIBRARY)
@@ -37,20 +37,55 @@ else()
      by following the default settings (i.e., do NOT modify the install path).")
 endif()
 
-include_directories(${BOOST_INCLUDE_DIRS} ${MYSQLCONNECTORCPP_INCLUDE_DIR})
+include_directories(${BOOST_INCLUDE_DIRS} ${MYSQLCONNECTORCPP_INCLUDE_DIR}/mysqlx)
 
-add_library(ades2 SHARED
-        include/ades.h
-        src/adesdb.cpp
-        include/adesdb.h
-        src/ades.cpp
-        src/action_container.cpp
-        include/action_container.h
-        src/motion_container.cpp
-        include/motion_container.h
-        src/hades.cpp
-        include/hades.h
-        include/effect_model.h
-        src/effect_model.cpp)
+set(SOURCES
+    include/ades.h
+    src/adesdb.cpp
+    include/adesdb.h
+    src/ades.cpp
+    src/action_container.cpp
+    include/action_container.h
+    src/motion_container.cpp
+    include/motion_container.h
+    src/hades.cpp
+    include/hades.h
+    include/effect_model.h
+    src/effect_model.cpp
+    )
 
-target_link_libraries(ades2 ${BOOST_LIBRARIES} ${MYSQLCONNECTORCPP_LIBRARY})
+set(LIBRARIES
+    ${BOOST_LIBRARIES}
+    ${MYSQLCONNECTORCPP_LIBRARY}
+    )
+
+# Extension for DMPLib
+find_package(DMP REQUIRED)
+find_package(Simox QUIET)
+find_package(Qt5OpenGL QUIET)
+find_package(Eigen3 QUIET)
+
+if(DMP_FOUND AND Simox_FOUND AND Eigen3_FOUND)
+    set(SOURCES
+        ${SOURCES}
+        include/motion_containers/dmplib_motion.h
+        src/motion_containers/dmplib_motion.cpp
+        )
+
+    set(LIBRARIES
+        ${LIBRARIES}
+        ${DMP_LIBS}
+        ${Simox_LIBRARIES}
+        ${Qt5_LIBRARIES}
+        )
+
+    include_directories(${DMP_INCLUDE_DIRS})
+    include_directories(${EIGEN3_INCLUDE_DIR})
+
+    add_executable(dmplib_motion_test src/test/dmplib_motion_test.cpp)
+    target_link_libraries(dmplib_motion_test ${LIBRARIES} ades2)
+endif()
+
+
+add_library(ades2 SHARED ${SOURCES})
+target_link_libraries(ades2 ${LIBRARIES})

@@ -19,6 +19,27 @@ using namespace std;
 
 namespace ades {
 
+    class TrajectoryPoint
+    {
+    public:
+        TrajectoryPoint() {}
+        TrajectoryPoint(double x, double y, double z, double qw, double qx, double qy, double qz) :
+            x(x), y(y), z(z), qw(qw), qx(qx), qy(qy), qz(qz)
+        {
+        }
+
+        double x = 0;
+        double y = 0;
+        double z = 0;
+
+        double qw = 0;
+        double qx = 0;
+        double qy = 0;
+        double qz = 0;
+    };
+
+    typedef std::map<double, TrajectoryPoint> Trajectory;
+
     enum class MotionType {DMP, CPG, TRAJ};
 
     class MotionContainer {
@@ -64,11 +85,11 @@ namespace ades {
 
         map<string, string> getParameters() noexcept;
 
-        virtual void run(const char* fmt ...);
+        virtual Trajectory run(const ades::TrajectoryPoint& start, const ades::TrajectoryPoint& goal, int num_timestamps);
 
-        virtual void train(const char* fmt ...);
+        virtual void train(const std::vector<Trajectory> &trajectories);
 
-        virtual void simulate(const char* fmt ...);
+        virtual Trajectory simulate(const ades::TrajectoryPoint& start, const ades::TrajectoryPoint& goal, int num_timestamps);
 
     };
 

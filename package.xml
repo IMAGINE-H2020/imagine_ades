@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>iis_libades_ros</name>
+  <name>uibk_libades_ros</name>
   <version>0.0.0</version>
-  <description>The iis_libades_ros package</description>
+  <description>The uibk_libades_ros package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="erwan@todo.todo">Erwan Renaudo</maintainer>
+  <maintainer email="erwan.renaudo@uibk.ac.at">Erwan Renaudo</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -43,13 +43,14 @@
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>iis_libades_ros_msgs</build_depend>
-  <build_depend>message_generation</build_depend> 
+  <build_depend>imagine_common</build_depend>
+  <!--build_depend>message_generation</build_depend--> 
   
   <run_depend>geometry_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>imagine_common</run_depend>
   <run_depend>message_runtime</run_depend> 
 
 

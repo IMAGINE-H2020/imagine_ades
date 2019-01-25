@@ -25,7 +25,7 @@ Adesdb_ros::Adesdb_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
     ss_estimate_effect = nh_.advertiseService("adesdb/estimate_effect", &Adesdb_ros::estimate_effect_srv, this);
 
-    db_changed = nh_.advertise<iis_libades_ros::KeyValPair>("adesdb/db_updated", 1);
+    db_changed = nh_.advertise<imagine_common::KeyValPair>("adesdb/db_updated", 1);
 
     shutdown = false;
 }
@@ -34,7 +34,7 @@ Adesdb_ros::~Adesdb_ros()
 {
 }
 
-bool Adesdb_ros::list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libades_ros::ListAdes::Response &rp)
+bool Adesdb_ros::list_ades_srv(imagine_common::ListAdes::Request &rq, imagine_common::ListAdes::Response &rp)
 {
     std::cout << "Request for listing ades " << std::endl;
 
@@ -46,17 +46,17 @@ bool Adesdb_ros::list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libad
     return true;
 }
 
-bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq, iis_libades_ros::GetAdesPreConds::Response &rp)
+bool Adesdb_ros::get_preconds_srv(imagine_common::GetAdesPreConds::Request &rq, imagine_common::GetAdesPreConds::Response &rp)
 {
     std::cout << "return preconditions for " << rq.ades_name << std::endl;
-    iis_libades_ros::KeyValPair fail_pc_;
+    imagine_common::KeyValPair fail_pc_;
     if(database.isInDB(rq.ades_name))
     {
         auto ades = database.getAdesByName(rq.ades_name);
 
         for(auto pc : ades.getPreconditions())
         {
-            iis_libades_ros::KeyValPair pc_;
+            imagine_common::KeyValPair pc_;
             pc_.key = pc.first;
             pc_.value = pc.second;
             rp.preconditions.push_back(pc_);
@@ -70,17 +70,17 @@ bool Adesdb_ros::get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq,
     return true;
 }
 
-bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, iis_libades_ros::GetAdesEffects::Response &rp)
+bool Adesdb_ros::get_effects_srv(imagine_common::GetAdesEffects::Request &rq, imagine_common::GetAdesEffects::Response &rp)
 {
     std::cout << "return effects for " << rq.ades_name << std::endl;
-    iis_libades_ros::KeyValPair fail_ef_;
+    imagine_common::KeyValPair fail_ef_;
     if(database.isInDB(rq.ades_name))
     {
         auto ades = database.getAdesByName(rq.ades_name);
 
         for(auto ef : ades.getEffects())
         {
-            iis_libades_ros::KeyValPair ef_;
+            imagine_common::KeyValPair ef_;
             ef_.key = ef.first;
             ef_.value = ef.second;
             rp.effects.push_back(ef_);
@@ -94,16 +94,16 @@ bool Adesdb_ros::get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, i
     return true;
 }
 
-bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, iis_libades_ros::GetAdesMotions::Response &rp)
+bool Adesdb_ros::get_motions_srv(imagine_common::GetAdesMotions::Request &rq, imagine_common::GetAdesMotions::Response &rp)
 {
     // This function could just send back ms names and some info (see the Motion class from libades) and we provide another more specific service for a ades/ms_id request)
     std::cout << "return motion sequences for " << rq.ades_name << std::endl;
     
-    iis_libades_ros::MotionSequence fail_mo_seq_;
+    imagine_common::MotionSequence fail_mo_seq_;
     fail_mo_seq_.sequence_name = "";
     fail_mo_seq_.input_types = std::vector<std::string>();
-    fail_mo_seq_.effect_prob = std::vector<iis_libades_ros::KeyValPair>();
-    fail_mo_seq_.effect_pred = std::vector<iis_libades_ros::KeyValPair>();
+    fail_mo_seq_.effect_prob = std::vector<imagine_common::KeyValPair>();
+    fail_mo_seq_.effect_pred = std::vector<imagine_common::KeyValPair>();
 
     if(database.isInDB(rq.ades_name))
     {
@@ -113,14 +113,14 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
         {
             // prepare MotionSequence msg 
             // (sequence_name, input_types, effect_prob, effect_pred, motions)
-            iis_libades_ros::MotionSequence mo_seq_;
+            imagine_common::MotionSequence mo_seq_;
             mo_seq_.sequence_name = sequence.first;
             mo_seq_.input_types = sequence.second.getInputTypes();
 
             for(auto epb : sequence.second.getGMMEffectModels())
             {
                 // For each effect prob model
-                iis_libades_ros::KeyValPair effect;
+                imagine_common::KeyValPair effect;
                 effect.key = epb.first;
                 effect.value = std::to_string(epb.second.Dimensionality())+" "+std::to_string(epb.second.Gaussians())+"\n";
                 for(int ig = 0 ; ig < epb.second.Gaussians() ; ig++)
@@ -151,17 +151,17 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
             for(auto epd : sequence.second.getGPEffectModels())
             {
                 // For each effect model
-                iis_libades_ros::KeyValPair effect;
+                imagine_common::KeyValPair effect;
                 effect.key = epd.first;
                 effect.value = std::to_string(epd.second.get_input_dim());
                 mo_seq_.effect_pred.push_back(effect);
             }
            
-            mo_seq_.motions = std::vector<iis_libades_ros::Motion>();
+            mo_seq_.motions = std::vector<imagine_common::Motion>();
 
             for(auto motion : sequence.second.getMotions())
             {
-                iis_libades_ros::Motion mt;
+                imagine_common::Motion mt;
                 std_msgs::Float64MultiArray motion_data;
                 // Motion is (type, data)
                 mt.type = typeToString(motion->getMotionType());
@@ -206,7 +206,7 @@ bool Adesdb_ros::get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, i
 }
 
 
-bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_libades_ros::StoreAdes::Response &rp)
+bool Adesdb_ros::store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine_common::StoreAdes::Response &rp)
 {
     std::cout << "trying to STORE " << rq.ades.ades_name << std::endl;
     bool result = false;
@@ -334,7 +334,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
         result = (database.isInDB(rq.ades.ades_name));
     } 
     rp.success = result;
-    iis_libades_ros::KeyValPair kv;
+    imagine_common::KeyValPair kv;
     kv.key = rq.ades.ades_name;
     kv.value = "stored";
     db_changed.publish(kv);
@@ -342,7 +342,7 @@ bool Adesdb_ros::store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_lib
     return true;
 }
 
-bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp)
+bool Adesdb_ros::update_ades_srv(imagine_common::UpdateAdes::Request &rq, imagine_common::UpdateAdes::Response &rp)
 {
     std::cout << "trying to UPDATE " << rq.ades_name << std::endl;
     // This service is mostly a copy paste of store ; some refactoring will be needed
@@ -501,7 +501,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
     }
     std::cout << "Ades nb : " << database.getAdesNb() << std::endl;
     rp.success = result;
-    iis_libades_ros::KeyValPair kv;
+    imagine_common::KeyValPair kv;
     kv.key = rq.ades_name;
     kv.value = "updated";
     db_changed.publish(kv);
@@ -509,7 +509,7 @@ bool Adesdb_ros::update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_l
     return true;
 }
 
-bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp)
+bool Adesdb_ros::delete_ades_srv(imagine_common::DeleteAdes::Request &rq, imagine_common::DeleteAdes::Response &rp)
 {
     std::cout << "trying to DELETE " << rq.ades_name << std::endl;
     bool alreadyExists = (database.isInDB(rq.ades_name));
@@ -524,7 +524,7 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
     rp.success = alreadyExists & !stillThere; 
     if( rp.success )
     {
-        iis_libades_ros::KeyValPair kv;
+        imagine_common::KeyValPair kv;
         kv.key = rq.ades_name;
         kv.value = "deleted";
         db_changed.publish(kv);
@@ -533,7 +533,7 @@ bool Adesdb_ros::delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_l
 }
 
 //ss_update_effect_models = nh_.advertiseService("adesdb/update_effect_models", &Adesdb_ros::update_effect_models_srv, this);
-bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Request &rq, iis_libades_ros::UpdateEffects::Response &rp)
+bool Adesdb_ros::update_effect_models_srv(imagine_common::UpdateEffects::Request &rq, imagine_common::UpdateEffects::Response &rp)
 {
     std::cout << "Received sample: " << rq.ades_name << ", " << rq.samples.size() << std::endl;
 
@@ -569,7 +569,7 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
                     std::cout << "Unknown effect type" << std::endl;
                 }
                 rp.success = true; // to refine to take into account all model updates
-                iis_libades_ros::KeyValPair kv;
+                imagine_common::KeyValPair kv;
                 kv.key = rq.ades_name;
                 kv.value = "updated";
                 db_changed.publish(kv);
@@ -589,7 +589,7 @@ bool Adesdb_ros::update_effect_models_srv(iis_libades_ros::UpdateEffects::Reques
     return true;
 }
 
-bool Adesdb_ros::estimate_effect_srv(iis_libades_ros::EstimateEffect::Request &rq, iis_libades_ros::EstimateEffect::Response &rp)
+bool Adesdb_ros::estimate_effect_srv(imagine_common::EstimateEffect::Request &rq, imagine_common::EstimateEffect::Response &rp)
 {
     rp.value = 0.0;
     rp.probability = -1;

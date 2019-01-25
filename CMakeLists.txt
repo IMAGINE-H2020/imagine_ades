@@ -12,7 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
-  message_generation
+  imagine_common
+  #message_generation
 )
 
 set(CMAKE_MODULE_PATH "/usr/lib/cmake")
@@ -133,30 +134,30 @@ set_property(TARGET libgp PROPERTY
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  AdesData.msg
-  Motion.msg
-  MotionSequence.msg
-  KeyValPair.msg
-  Observation.msg
-#   Message2.msg
-)
-
-## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  ListAdes.srv
-  StoreAdes.srv
-  UpdateAdes.srv
-  DeleteAdes.srv
-  GetAdesPreConds.srv
-  GetAdesEffects.srv
-  GetAdesMotions.srv
-  Dummy.srv
-  UpdateEffects.srv
-  EstimateEffect.srv
-)
+#add_message_files(
+#  FILES
+#  AdesData.msg
+#  Motion.msg
+#  MotionSequence.msg
+#  KeyValPair.msg
+#  Observation.msg
+##   Message2.msg
+#)
+#
+### Generate services in the 'srv' folder
+#add_service_files(
+#  FILES
+#  ListAdes.srv
+#  StoreAdes.srv
+#  UpdateAdes.srv
+#  DeleteAdes.srv
+#  GetAdesPreConds.srv
+#  GetAdesEffects.srv
+#  GetAdesMotions.srv
+#  Dummy.srv
+#  UpdateEffects.srv
+#  EstimateEffect.srv
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -166,12 +167,14 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-    DEPENDENCIES
-    geometry_msgs
-    sensor_msgs
-    std_msgs
-)
+# not needed, message/srv moved to imagine_common
+#generate_messages(
+#    DEPENDENCIES
+#    geometry_msgs
+#    sensor_msgs
+#    std_msgs
+#    imagine_common
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -245,7 +248,8 @@ add_executable(adesdb src/iis_adesdb.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS})
+#add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(

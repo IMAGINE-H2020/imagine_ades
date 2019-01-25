@@ -1,5 +1,6 @@
 # iis_libades_ros
 
+# DEPRECATED ; use the version in imagine_ades REPO !
 Wrapper around [libades](https://github.com/lokalmatador/ades/)
 
 ## Usage

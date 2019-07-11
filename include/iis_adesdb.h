@@ -8,23 +8,40 @@
 #include <std_msgs/MultiArrayDimension.h>
 
 #include <ades/libades.h>
-#include "iis_libades_ros/Dummy.h"
+//#include "uibk_libades_ros/Dummy.h"
 
-#include "iis_libades_ros/ListAdes.h"
-#include "iis_libades_ros/StoreAdes.h"
-#include "iis_libades_ros/UpdateAdes.h"
-#include "iis_libades_ros/DeleteAdes.h"
+#include "imagine_common/ListAdes.h"
+#include "imagine_common/StoreAdes.h"
+#include "imagine_common/UpdateAdes.h"
+#include "imagine_common/DeleteAdes.h"
 
-#include "iis_libades_ros/UpdateEffects.h"
-#include "iis_libades_ros/EstimateEffect.h"
+#include "imagine_common/UpdateEffects.h"
+#include "imagine_common/EstimateEffect.h"
 
-#include "iis_libades_ros/GetAdesPreConds.h"
-#include "iis_libades_ros/GetAdesEffects.h"
-#include "iis_libades_ros/GetAdesMotions.h"
+#include "imagine_common/GetAdesPreConds.h"
+#include "imagine_common/GetAdesEffects.h"
+#include "imagine_common/GetAdesMotions.h"
 
-#include "iis_libades_ros/KeyValPair.h"
-#include "iis_libades_ros/Motion.h"
-#include "iis_libades_ros/MotionSequence.h"
+#include "imagine_common/KeyValPair.h"
+#include "imagine_common/Motion.h"
+#include "imagine_common/MotionSequence.h"
+/*
+#include "uibk_libades_ros/ListAdes.h"
+#include "uibk_libades_ros/StoreAdes.h"
+#include "uibk_libades_ros/UpdateAdes.h"
+#include "uibk_libades_ros/DeleteAdes.h"
+
+#include "uibk_libades_ros/UpdateEffects.h"
+#include "uibk_libades_ros/EstimateEffect.h"
+
+#include "uibk_libades_ros/GetAdesPreConds.h"
+#include "uibk_libades_ros/GetAdesEffects.h"
+#include "uibk_libades_ros/GetAdesMotions.h"
+
+#include "uibk_libades_ros/KeyValPair.h"
+#include "uibk_libades_ros/Motion.h"
+#include "uibk_libades_ros/MotionSequence.h"
+*/
 
 class Adesdb_ros
 {
@@ -55,17 +72,17 @@ class Adesdb_ros
         bool run();
 
         // callbacks / services
-        bool get_preconds_srv(iis_libades_ros::GetAdesPreConds::Request &rq, iis_libades_ros::GetAdesPreConds::Response &rp);
+        bool get_preconds_srv(imagine_common::GetAdesPreConds::Request &rq, imagine_common::GetAdesPreConds::Response &rp);
 
-        bool get_effects_srv(iis_libades_ros::GetAdesEffects::Request &rq, iis_libades_ros::GetAdesEffects::Response &rp);
-        bool get_motions_srv(iis_libades_ros::GetAdesMotions::Request &rq, iis_libades_ros::GetAdesMotions::Response &rp);
+        bool get_effects_srv(imagine_common::GetAdesEffects::Request &rq, imagine_common::GetAdesEffects::Response &rp);
+        bool get_motions_srv(imagine_common::GetAdesMotions::Request &rq, imagine_common::GetAdesMotions::Response &rp);
 
-        bool list_ades_srv(iis_libades_ros::ListAdes::Request &rq, iis_libades_ros::ListAdes::Response &rp);
-        bool store_ades_srv(iis_libades_ros::StoreAdes::Request &rq, iis_libades_ros::StoreAdes::Response &rp);
-        bool update_ades_srv(iis_libades_ros::UpdateAdes::Request &rq, iis_libades_ros::UpdateAdes::Response &rp);
-        bool delete_ades_srv(iis_libades_ros::DeleteAdes::Request &rq, iis_libades_ros::DeleteAdes::Response &rp);
+        bool list_ades_srv(imagine_common::ListAdes::Request &rq, imagine_common::ListAdes::Response &rp);
+        bool store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine_common::StoreAdes::Response &rp);
+        bool update_ades_srv(imagine_common::UpdateAdes::Request &rq, imagine_common::UpdateAdes::Response &rp);
+        bool delete_ades_srv(imagine_common::DeleteAdes::Request &rq, imagine_common::DeleteAdes::Response &rp);
 
-        bool update_effect_models_srv(iis_libades_ros::UpdateEffects::Request &rq, iis_libades_ros::UpdateEffects::Response &rp);
-        bool estimate_effect_srv(iis_libades_ros::EstimateEffect::Request &rq, iis_libades_ros::EstimateEffect::Response &rp);
+        bool update_effect_models_srv(imagine_common::UpdateEffects::Request &rq, imagine_common::UpdateEffects::Response &rp);
+        bool estimate_effect_srv(imagine_common::EstimateEffect::Request &rq, imagine_common::EstimateEffect::Response &rp);
 
 };

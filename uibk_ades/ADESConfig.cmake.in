@@ -1,0 +1,12 @@
+# - Config file for the ADES package
+# It defines the following variables
+#  ADES_INCLUDE_DIRS - include directories for ADES
+#  ADES_LIBRARIES    - libraries to link against
+#  ADES_EXECUTABLE   - the bar executable
+
+# Compute paths
+get_filename_component(ADES_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(ADES_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# These are IMPORTED targets created by ADESTargets.cmake
+set(ADES_LIBRARIES ades)

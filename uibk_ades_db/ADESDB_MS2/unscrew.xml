@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="12">
+<ades class_id="0" tracking_level="0" version="0">
+	<ID>140721705405952</ID>
+	<name_>unscrew</name_>
+	<preconditions_ class_id="1" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="0" version="0">
+			<first>unscrew(?screw - screw ?side - side ?aff - unscrewability ?mode - mode)</first>
+			<second>(and (not (has-lingering-screws ?side)) (at-side ?screw ?side) (has-affordance ?screw ?aff) (not (= ?mode simulated)))</second>
+		</item>
+	</preconditions_>
+	<effects_>
+		<count>1</count>
+		<item_version>0</item_version>
+		<item>
+			<first></first>
+			<second>(and
+                (not (at-side ?screw ?side))
+                (forall (?thing - thing) (not (fixed-by ?thing ?screw)))
+                (has-lingering-screws ?side)
+                (removed ?screw)
+                (increase (total-cost) (cost-affordance ?aff ?mode)))</second>
+		</item>
+	</effects_>
+	<motion_sequences_ class_id="3" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="4" tracking_level="0" version="0">
+			<first>unscrew</first>
+			<second class_id="5" tracking_level="0" version="0">
+				<ID>140721705405200</ID>
+				<inputTypes_ class_id="9" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>SCREW.pose</item>
+				</inputTypes_>
+				<num_gmm_models>0</num_gmm_models>
+				<effectTypes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</effectTypes>
+				<motions_ class_id="10" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item class_id="8" tracking_level="1" version="0" object_id="_0">
+						<Motion class_id="11" tracking_level="0" version="0">
+							<temporalScale>1.982839517e+29</temporalScale>
+							<name_></name_>
+						</Motion>
+					</item>
+				</motions_>
+			</second>
+		</item>
+	</motion_sequences_>
+</ades>
+</boost_serialization>
+

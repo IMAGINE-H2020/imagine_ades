@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="12">
+<ades class_id="0" tracking_level="0" version="0">
+	<ID>140734822181552</ID>
+	<name_>unscrew</name_>
+	<preconditions_ class_id="1" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="0" version="0">
+			<first>unscrew_able</first>
+			<second>screw(SCREW), reachable(SCREW), \+hides(OBJECT, SCREW), current_side(S), side(SCREW, S)</second>
+		</item>
+	</preconditions_>
+	<effects_>
+		<count>1</count>
+		<item_version>0</item_version>
+		<item>
+			<first>unscrew_ed</first>
+			<second>forall(fixed_by(OBJECT, SCREW) -&gt; \+fixed_by(OBJECT, SCREW)), removed(SCREW)</second>
+		</item>
+	</effects_>
+	<motion_sequences_ class_id="3" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="4" tracking_level="0" version="0">
+			<first>unscrew</first>
+			<second class_id="5" tracking_level="0" version="0">
+				<ID>140734822180800</ID>
+				<inputTypes_ class_id="9" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>SCREW.pose</item>
+				</inputTypes_>
+				<num_gmm_models>0</num_gmm_models>
+				<effectTypes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</effectTypes>
+				<motions_ class_id="10" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item class_id="8" tracking_level="1" version="0" object_id="_0">
+						<Motion class_id="11" tracking_level="0" version="0">
+							<temporalScale>0.000000000e+00</temporalScale>
+							<name_></name_>
+						</Motion>
+					</item>
+				</motions_>
+			</second>
+		</item>
+	</motion_sequences_>
+</ades>
+</boost_serialization>
+

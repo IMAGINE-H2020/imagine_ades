@@ -9,3 +9,4 @@ All packages and code related to ADES framework, corresponding learning tools an
 First step is to build the ades C++ library: go to uibk_ades, and follow the Readme instructions (create a build folder, run cmake, make, then make install).
 
 Then run catkin_make at the root of the catkin workspace.
+

@@ -10,7 +10,3 @@ First step is to build the ades C++ library: go to uibk_ades, and follow the Rea
 
 Then run catkin_make at the root of the catkin workspace.
 
-### Query existing ades :
-```
-rosservice call /adesdb/list_ades
-```

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-rosrun uibk_libades_ros adesdb --home $HOME/ADESDB

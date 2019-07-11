@@ -8,7 +8,7 @@
 #include <std_msgs/MultiArrayDimension.h>
 
 #include <ades/libades.h>
-//#include "uibk_libades_ros/Dummy.h"
+#include "imagine_common/Dummy.h"
 
 #include "imagine_common/ListAdes.h"
 #include "imagine_common/StoreAdes.h"

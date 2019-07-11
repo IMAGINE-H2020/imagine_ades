@@ -144,8 +144,8 @@ set_property(TARGET libgp PROPERTY
 #  Observation.msg
 ##   Message2.msg
 #)
-
-## Generate services in the 'srv' folder
+#
+### Generate services in the 'srv' folder
 #add_service_files(
 #  FILES
 #  ListAdes.srv
@@ -168,6 +168,7 @@ set_property(TARGET libgp PROPERTY
 # )
 
 ## Generate added messages and services with any dependencies listed here
+# not needed, message/srv moved to imagine_common
 #generate_messages(
 #    DEPENDENCIES
 #    geometry_msgs
@@ -248,8 +249,8 @@ add_executable(adesdb src/iis_adesdb.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(adesdb ${catkin_EXPORTED_TARGETS})
 #add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(

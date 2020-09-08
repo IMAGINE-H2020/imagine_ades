@@ -238,6 +238,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/iis_libades_node.cpp)
 add_executable(adesdb src/iis_adesdb.cpp)
+add_executable(motiondb src/iis_motiondb.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -250,6 +251,7 @@ add_executable(adesdb src/iis_adesdb.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS})
 add_dependencies(adesdb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(motiondb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
@@ -259,6 +261,13 @@ target_link_libraries(
     boost
     mlpack
     libgp
+)
+
+target_link_libraries(
+    motiondb
+    ${catkin_LIBRARIES}
+    libADES
+    boost
 )
 
 #############

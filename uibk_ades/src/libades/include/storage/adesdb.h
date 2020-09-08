@@ -37,7 +37,6 @@ namespace ades {
             return home_;
         }
 
-
         int getAdesNb()
         {
             return ades_.size();

@@ -2,8 +2,11 @@ configure_file(config.h.in "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
 
 add_library(${LIBRARY_NAME} SHARED
 	src/storage/adesdb.cpp
+	src/storage/motiondb.cpp
 	src/types/ades.cpp
+	src/types/ades2.cpp
 	src/types/motion_sequence.cpp
+	src/types/motion_sequence2.cpp
 	src/types/motion_type.cpp)
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#rosservice call /ades2db/update_ades '{ades_name: '$1', ades: {ades_name: "'$1'", preconditions: [{key: "unscrewable", value: "(and (screw ?X) (= screw_type clutch))"}]}}'
+rosservice call /ades2db/update_ades '{ades_name: '$1', ades: {ades_name: "'$1'", motion_sequences: [{sequence_name: "simple_pushing", input_types: ["screw_head_position", "screw_head_angle"], effect_prob: [{key: "screw_displacement", value: "3 1 "}, {key: "cover_support_distance", value: "5 1 "}], effect_pred: [{key: "screw_displacement", value: "6 CovSum(CovSEiso,CovNoise) "}], motions: [{name: "push312", type: "Trajectory", data: {layout: {dim: [{label: "points_x", size: 5, stride: 0}, {label: "points_y", size: 5, stride: 0}], data_offset: 0}, data: [0.1, -0.3, 0.5, 0.4, 0.3, -0.4, -0.8, 0.3, 0.6, 0.6]}}]}]}}'

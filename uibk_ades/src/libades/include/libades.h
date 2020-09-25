@@ -2,6 +2,7 @@
 // main header for external inclusion
 
 #include "storage/adesdb.h"
+#include "storage/ades2db.h"
 #include "storage/motiondb.h"
 
 #include "types/ades.h"

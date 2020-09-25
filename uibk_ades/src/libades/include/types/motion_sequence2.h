@@ -27,7 +27,7 @@ namespace ades {
     private:
         uint64_t ID;
         std::vector<std::string> inputTypes_;
-        std::vector<const Motion*> motions_;
+        std::vector<std::string> motions_;
         std::map<std::string, mlpack::gmm::GMM> gmm_effectModels_;
         std::map<std::string, libgp::GaussianProcess> gp_effectModels_;
 
@@ -43,7 +43,7 @@ namespace ades {
                                      probabilistic effect models using GPs
          */
         MotionSequence2(std::vector<std::string> inputTypes = std::vector<std::string>(),
-                       std::vector<const Motion*> motions = std::vector<const Motion*>(),
+                       std::vector<std::string> motions = std::vector<std::string>(),
                        std::map<std::string, mlpack::gmm::GMM> gmm_effectModels = std::map<std::string, mlpack::gmm::GMM>(),
                        std::map<std::string, libgp::GaussianProcess> gp_effectModels = std::map<std::string, libgp::GaussianProcess>());
 
@@ -78,9 +78,9 @@ namespace ades {
         /*! Add a motion to this motion sequence at specified step. Step hereby denotes the
          *  temporal order of execution.
          *  \param step : integer index in the motion (at which step do I do this)
-         *  \param motion : the motion to insert
+         *  \param motion : the name of the motion to insert (string)
          */
-        void insertMotion(const int step, const Motion *motion);
+        void insertMotion(const int step, const std::string motion);
 
 
         /*! Remove the specifed motion (specified by its step) from this motion sequence.
@@ -96,13 +96,13 @@ namespace ades {
          *  \exception std::out_of_range : if the MotionSequence2 does not have an motion
          *                                 at the specified step
          */
-        Motion const *modifyMotion(const int step);
+        std::string const modifyMotion(const int step);
 
 
         /*! Return the current list of motions.
          *  \return a vector of <const Motion> containing all input types
          */
-        std::vector<const Motion*> getMotions() const
+        std::vector<std::string> getMotions() const
         {
             return motions_;
         }
@@ -256,7 +256,7 @@ namespace ades {
             for(auto effect : effectTypes)
             {
                 auto model = gp_effectModels_.at(effect);
-                std::string path = DB_DIR + "/" + effect + "_" + ID_ + ".effect";
+                std::string path = DB2_DIR + "/" + effect + "_" + ID_ + ".effect";
                 model.write(path.c_str());
             }
 
@@ -308,7 +308,7 @@ namespace ades {
 
             for(auto effect : effectTypes)
             {
-                std::string path = DB_DIR + "/" + effect + "_" + ID_ + ".effect";
+                std::string path = DB2_DIR + "/" + effect + "_" + ID_ + ".effect";
                 auto model = libgp::GaussianProcess(path.c_str());
                 gp_effectModels_.insert(std::pair<std::string, libgp::GaussianProcess>(effect, model));
             }

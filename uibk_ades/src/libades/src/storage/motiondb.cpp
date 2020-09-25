@@ -1,6 +1,5 @@
 #include "../../include/storage/motiondb.h"
 
-
 using namespace std;
 
 namespace ades {

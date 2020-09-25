@@ -6,7 +6,7 @@ using namespace std;
 namespace ades {
 
     MotionSequence2::MotionSequence2(vector<string> inputTypes,
-                                   vector<const Motion*> motions,
+                                   vector<std::string> motions,
                                    map<string, mlpack::gmm::GMM> gmm_effectModels,
                                    map<string, libgp::GaussianProcess> gp_effectModels
         ) : ID(reinterpret_cast<uint64_t>(&inputTypes)),
@@ -40,7 +40,7 @@ namespace ades {
         }
     }
 
-    void MotionSequence2::insertMotion(const int step, const Motion *motion)
+    void MotionSequence2::insertMotion(const int step, std::string motion)
     {
         motions_.insert(motions_.begin()+step, motion);
     }
@@ -50,7 +50,7 @@ namespace ades {
         motions_.erase(motions_.begin() + step);
     }
 
-    Motion const *MotionSequence2::modifyMotion(const int step)
+    std::string const MotionSequence2::modifyMotion(const int step)
     {
         return motions_.at(step);
     }

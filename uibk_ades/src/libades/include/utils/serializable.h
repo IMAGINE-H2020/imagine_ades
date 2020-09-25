@@ -11,6 +11,8 @@
 #include <boost/serialization/split_member.hpp>
 
 extern std::string DB_DIR;
+extern std::string DB2_DIR;
+
 
 class Serializable
 {

@@ -136,27 +136,13 @@ set_property(TARGET libgp PROPERTY
 ## Generate messages in the 'msg' folder
 #add_message_files(
 #  FILES
-#  AdesData.msg
-#  Motion.msg
-#  MotionSequence.msg
-#  KeyValPair.msg
-#  Observation.msg
-##   Message2.msg
+#  Message.msg
 #)
 #
 ### Generate services in the 'srv' folder
 #add_service_files(
 #  FILES
-#  ListAdes.srv
-#  StoreAdes.srv
-#  UpdateAdes.srv
-#  DeleteAdes.srv
-#  GetAdesPreConds.srv
-#  GetAdesEffects.srv
-#  GetAdesMotions.srv
-#  Dummy.srv
-#  UpdateEffects.srv
-#  EstimateEffect.srv
+#  Service.srv
 #)
 
 ## Generate actions in the 'action' folder
@@ -238,6 +224,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/iis_libades_node.cpp)
 add_executable(adesdb src/iis_adesdb.cpp)
+add_executable(ades2db src/iis_ades2db.cpp)
 add_executable(motiondb src/iis_motiondb.cpp)
 
 ## Rename C++ executable without prefix
@@ -256,6 +243,15 @@ add_dependencies(motiondb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
     adesdb
+    ${catkin_LIBRARIES}
+    libADES
+    boost
+    mlpack
+    libgp
+)
+
+target_link_libraries(
+    ades2db
     ${catkin_LIBRARIES}
     libADES
     boost

@@ -47,10 +47,11 @@ bool Motiondb_ros::get_motion_srv(imagine_common::GetMotion::Request &rq, imagin
     
     if( motion != NULL)
     {
-        imagine_common::Motion2 mt;
+        std::cout << "found motion" << std::endl;
+        imagine_common::Motion mt;
 
         std_msgs::Float64MultiArray motion_data;
-        // Motion2 is (name, type, data)
+        // Motion is (name, type, data)
         mt.type = typeToString(motion->getMotionType());
         mt.name = motion->getName();
         // this is a map of string, vector<double>
@@ -80,7 +81,8 @@ bool Motiondb_ros::get_motion_srv(imagine_common::GetMotion::Request &rq, imagin
     }    
     else
     {
-        rp.motion = imagine_common::Motion2();
+        std::cout << "unknown motion returning empty motion" << std::endl;
+        rp.motion = imagine_common::Motion();
         return false;
     }
 
@@ -163,7 +165,7 @@ bool Motiondb_ros::update_motion_srv(imagine_common::UpdateMotion::Request &rq, 
     bool result = false;
 
     // string motion_name
-    // Motion2 motion
+    // Motion motion
     std::cout << "trying to UPDATE " << rq.motion_name << std::endl;
     // This service is mostly a copy paste of store ; some refactoring will be needed
     // "name" in the request is the target (needs to exist)

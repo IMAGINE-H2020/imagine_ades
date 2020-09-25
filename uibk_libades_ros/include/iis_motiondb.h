@@ -18,7 +18,6 @@
 
 #include "imagine_common/KeyValPair.h"
 #include "imagine_common/Motion.h"
-#include "imagine_common/Motion2.h"
 #include "imagine_common/MotionSequence.h"
 
 class Motiondb_ros

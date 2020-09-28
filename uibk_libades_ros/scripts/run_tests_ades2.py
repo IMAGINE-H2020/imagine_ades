@@ -7,6 +7,7 @@ from imagine_common.msg import Motion, KeyValPair, AdesData, MotionSequence
 from std_msgs.msg import Float64MultiArray, MultiArrayLayout, MultiArrayDimension, String
 
 if __name__ == "__main__":
+    rospy.init_node("test_ades2db_db")
     print("Start tests")
 
     print("Don't use your original databases to avoid data loss/corruption")

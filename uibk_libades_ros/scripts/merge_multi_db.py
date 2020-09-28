@@ -1,38 +1,154 @@
 #!/usr/bin/env python
 
 import rospy
+import rosservice
 import numpy as np
 from imagine_common.srv import ListAdes, GetAdesPreConds, GetAdesEffects, GetAdesMotions, GetAdesMotionNames, StoreAdes, UpdateAdes, DeleteAdes, ListMotion, GetMotion, StoreMotion, UpdateMotion, DeleteMotion
 from imagine_common.msg import Motion, KeyValPair, AdesData, MotionSequence
 from std_msgs.msg import Float64MultiArray, MultiArrayLayout, MultiArrayDimension, String
 
 if __name__ == "__main__":
+    rospy.init_node("merge_multi_db")
+
     print("Merging Symbolic part of one AdesDB to the Subsymbolic part of another AdesDB.")
-    print("This process requires to run in parallel 2 adesdb/ades2db+motiondb (2)")
-    print("The content of (1) will be copied and adapted to (2)")
-    print("Be sure NOT to override data in the process.")
+    print("This process requires to run in parallel 3 adesdb/ades2db+motiondb : 2 with the same ADESes but partial info, 1 as the target database")
+    print("Start the databases within ros namespaces")
 
-    raw_input("Continue (to abort: Ctrl+C)")
+    choice = raw_input("Do you want to proceed? [Y/n]: ")
+    if choice == 'n':
+        exit()
 
-    print("banana")
+    default_namespace_symb = "symb"
+    default_namespace_subs = "subsymb"
+    default_namespace_targ = "target"
+    default_type_symb = 2
+    default_type_subs = 2
+    # target is always 2, we want to get rid of db1
+
+    namespace_symb = raw_input("Enter namespace for symbolic db (default:"+default_namespace_symb+"): ")
+    type_symb = raw_input("Enter type (default:"+str(default_type_symb)+"): ")
+    
+    namespace_subs = raw_input("Enter namespace for subsymbolic db (default:"+default_namespace_subs+"): ")
+    type_subs = raw_input("Enter type (default:"+str(default_type_subs)+"): ")
+    
+    namespace_targ = raw_input("Enter namespace of target DB (default:"+default_namespace_targ+"): ")
+
+    # ------- this whole code block can probably be improved
+    #if db1, wait for ns/adesdb/list_ades
+    #if db2, wait for ns/ades2db/list_ades and ns/motiondb/list_motion
+    if not namespace_symb:
+        namespace_symb = default_namespace_symb
+    if not type_symb:
+        type_symb = default_type_symb
+
+    print("Waiting for symbolic db to be up")
+    srv_ades_symb = namespace_symb + "/ades2db" if type_symb == 2 else "/adesdb"
+    srv_motion_symb = namespace_symb + "/motiondb"
+    
+    rospy.wait_for_service(srv_ades_symb+"/list_ades")
+    if type_symb == 2:
+        rospy.wait_for_service(srv_motion_symb+"/list_motion")
+
+    if not namespace_subs:
+        namespace_subs = default_namespace_subs
+    if not type_subs:
+        type_subs = default_type_subs
+
+    print("Waiting for subsymbolic db to be up")
+    srv_ades_subs = namespace_subs + "/ades2db" if type_subs == 2 else "/adesdb"
+    srv_motion_subs = namespace_subs + "/motiondb"
+    
+    rospy.wait_for_service(srv_ades_subs+"/list_ades")
+    if type_subs == 2:
+        rospy.wait_for_service(srv_motion_subs+"/list_motion")
+
+    print("Waiting for target db to be up")
+    if not namespace_targ:
+        namespace_targ = default_namespace_targ
+    srv_ades_targ = namespace_targ + "/ades2db"
+    srv_motion_targ = namespace_targ + "/motiondb"
+    rospy.wait_for_service(srv_ades_targ+"/list_ades")
+    rospy.wait_for_service(srv_motion_targ+"/list_motion")
+    # -----------------------------------
+
+    '''
+    # Pseudo code:
+    - assume default symb/subsymb namespaces and check there are running dbs there
+    - if yes, proceed, else, ask for namespaces
+    - Check that both databases are running (by wait_for ades_listing services)
+    - Check that they contain the same ADESes
+    - ask for the target database???
+    - For each ADES pair
+        - create a new one set with values from both ADES of the pair
+        - store new ADES
+    '''
+
+    # Symbolic services proxies
+    list_ades_symb = rospy.ServiceProxy(srv_ades_symb+"/list_ades", ListAdes)
+    #get_ades_motions = rospy.ServiceProxy(srv_ades_symb+"/get_motions", GetAdesMotions)
+    get_preconds_symb = rospy.ServiceProxy(srv_ades_symb+"/get_preconds", GetAdesPreConds)
+    get_effects_symb = rospy.ServiceProxy(srv_ades_symb+"/get_effects", GetAdesEffects)
+    #list_motions_symb = rospy.ServiceProxy(srv_motion_symb+"/list_motion", ListMotion)
+    #get_motion = rospy.ServiceProxy("motiondb/get_motion", GetMotion)
+    #list_ades = rospy.ServiceProxy("ades2db/list_ades", ListAdes)
+    #store_ades = rospy.ServiceProxy("ades2db/store_ades", StoreAdes)
+    #get_ades_motion_names = rospy.ServiceProxy("ades2db/get_motion_names", GetAdesMotionNames)
+    
+    # subsymbolic services proxies
+    list_ades_subs = rospy.ServiceProxy(srv_ades_subs+"/list_ades", ListAdes)
+    get_ades_motions_subs = rospy.ServiceProxy(srv_ades_subs+"/get_motions", GetAdesMotions)
+    #get_preconds = rospy.ServiceProxy(srv_ades_symb+"/get_preconds", GetAdesPreConds)
+    #get_effects = rospy.ServiceProxy(srv_ades_symb+"/get_effects", GetAdesEffects)
+    
+    # Target services proxies
+    store_ades_targ = rospy.ServiceProxy(srv_ades_targ+"/store_ades", StoreAdes)
+
+    # Check that dbs contain the same ADES
+    ades_symb = list_ades_symb().ades_list
+    ades_subs = list_ades_subs().ades_list
+    len_symb = len(ades_symb)
+    len_subs = len(ades_subs)
+    #print("Length test: %r" % (len_symb == len_subs))
+    print("Lengths SY: %d, SB: %d" % (len_symb, len_subs))
+    if len_symb != len_subs:
+        print("databases contain a different number of ADES.")
+        choice = raw_input("Do you want to proceed? [Y/n]: ")
+        if choice == 'n':
+            exit()
+
+    common_ades = set()
+    if ades_symb != ades_subs:
+        print("Databases contain different ADES.")
+        print(ades_symb)
+        print(ades_subs)
+        common_ades = set(ades_symb).intersection(ades_subs)
+        print("There are only "+str(len(common_ades))+" in common.")
+        choice = raw_input("Do you want to proceed? [Y/n]: ")
+        if choice == 'n':
+            exit()
+
+    print("Common ades nb: %d" % len(common_ades))
+    for a_s in common_ades:
+        # fetch infos:
+        new_pc = get_preconds_symb(a_s)
+        new_ef = get_effects_symb(a_s)
+        new_motions = get_ades_motions_subs(a_s)
+        print(new_pc)
+        print(new_ef)
+        print(new_motions)
+
     exit()
-
-
-    print("Don't use your original databases to avoid data loss/corruption")
-    print("Start a dummy ADES2 database")
-    rospy.wait_for_service("/ades2db/list_ades")
-    print("list_ades available, ADES2DB is running.")
-    print("Start a dummy motion database")
-    rospy.wait_for_service("/motiondb/list_motion")
-    print("list_motion available, MotionDB is running.")
-
     # Service proxies
+    '''
     print("Testing MotionDB")
-    list_motions = rospy.ServiceProxy("motiondb/list_motion", ListMotion)
-    delete_motion = rospy.ServiceProxy("motiondb/delete_motion", DeleteMotion)
-    store_motion = rospy.ServiceProxy("motiondb/store_motion", StoreMotion)
-    update_motion = rospy.ServiceProxy("motiondb/update_motion", UpdateMotion)
-    get_motion = rospy.ServiceProxy("motiondb/get_motion", GetMotion)
+    #list_motions = rospy.ServiceProxy("motiondb/list_motion", ListMotion)
+    #delete_motion = rospy.ServiceProxy("motiondb/delete_motion", DeleteMotion)
+    #store_motion = rospy.ServiceProxy("motiondb/store_motion", StoreMotion)
+    #update_motion = rospy.ServiceProxy("motiondb/update_motion", UpdateMotion)
+    #delete_ades = rospy.ServiceProxy("ades2db/delete_ades", DeleteAdes)
+    #update_ades = rospy.ServiceProxy("ades2db/update_ades", UpdateAdes)
+    #get_motion = rospy.ServiceProxy("motiondb/get_motion", GetMotion)
+
 
     # Testing whether the DB is empty, if not raising a warning
     motions_in_db = list_motions()
@@ -252,3 +368,4 @@ if __name__ == "__main__":
 
     print("ADES2DB: Tests finished with"+"out \033[32merrors\033[39m" if running_result else " \033[31merrors\033[39m")
     # -----------------------------------------
+    '''

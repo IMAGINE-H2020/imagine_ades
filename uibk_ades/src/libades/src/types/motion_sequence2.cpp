@@ -8,12 +8,14 @@ namespace ades {
     MotionSequence2::MotionSequence2(vector<string> inputTypes,
                                    vector<std::string> motions,
                                    map<string, mlpack::gmm::GMM> gmm_effectModels,
-                                   map<string, libgp::GaussianProcess> gp_effectModels
+                                   map<string, libgp::GaussianProcess> gp_effectModels,
+                                   float score
         ) : ID(reinterpret_cast<uint64_t>(&inputTypes)),
             inputTypes_(inputTypes),
             motions_(motions),
             gmm_effectModels_(gmm_effectModels),
-            gp_effectModels_(gp_effectModels)
+            gp_effectModels_(gp_effectModels),
+            score(score)
     {}
 
     MotionSequence2::~MotionSequence2(){}

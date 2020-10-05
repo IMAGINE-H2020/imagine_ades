@@ -30,6 +30,7 @@ namespace ades {
         std::vector<std::string> motions_;
         std::map<std::string, mlpack::gmm::GMM> gmm_effectModels_;
         std::map<std::string, libgp::GaussianProcess> gp_effectModels_;
+        float score;
 
 
     public:
@@ -45,7 +46,8 @@ namespace ades {
         MotionSequence2(std::vector<std::string> inputTypes = std::vector<std::string>(),
                        std::vector<std::string> motions = std::vector<std::string>(),
                        std::map<std::string, mlpack::gmm::GMM> gmm_effectModels = std::map<std::string, mlpack::gmm::GMM>(),
-                       std::map<std::string, libgp::GaussianProcess> gp_effectModels = std::map<std::string, libgp::GaussianProcess>());
+                       std::map<std::string, libgp::GaussianProcess> gp_effectModels = std::map<std::string, libgp::GaussianProcess>(),
+                       float score = 1.0);
 
         ~MotionSequence2();
 
@@ -54,6 +56,15 @@ namespace ades {
             return ID;
         }
 
+        uint64_t getScore() const
+        {
+            return score;
+        }
+
+        void setScore(float s)
+        {
+            score = ((s <= 1.0 ? s : 1.0) >= -1 ? s : -1.0);
+        }
 
         /*! Add a set of input types to this motion sequence. Checks against duplicate entries.
          *  \param inputTypes : vector of <string> specifying input types

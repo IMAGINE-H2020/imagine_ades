@@ -113,6 +113,7 @@ bool Ades2db_ros::get_motions_srv(imagine_common::GetAdesMotions::Request &rq, i
     
     imagine_common::MotionSequence fail_mo_seq_;
     fail_mo_seq_.sequence_name = "";
+    fail_mo_seq_.score = -1.0;
     fail_mo_seq_.input_types = std::vector<std::string>();
     fail_mo_seq_.effect_prob = std::vector<imagine_common::KeyValPair>();
     fail_mo_seq_.effect_pred = std::vector<imagine_common::KeyValPair>();
@@ -130,6 +131,7 @@ bool Ades2db_ros::get_motions_srv(imagine_common::GetAdesMotions::Request &rq, i
             imagine_common::MotionSequence mo_seq_;
             mo_seq_.sequence_name = sequence.first;
             mo_seq_.input_types = sequence.second.getInputTypes();
+            mo_seq_.score = sequence.second.getScore();
 
             for(auto epb : sequence.second.getGMMEffectModels())
             {
@@ -297,6 +299,7 @@ bool Ades2db_ros::store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine
         {
             //MotionSequence ms_;
             MotionSequence2 ms2_;
+            ms2_.setScore(ms.score);
             std::vector<std::string> inputTypes;
             for(auto it : ms.input_types)
             {
@@ -489,6 +492,7 @@ bool Ades2db_ros::update_ades_srv(imagine_common::UpdateAdes::Request &rq, imagi
             for(auto ms : rq.ades.motion_sequences)
             {
                 MotionSequence2 ms2_;
+                ms2_.setScore(ms.score);
                 std::vector<std::string> inputTypes;
                 for(auto it : ms.input_types)
                 {

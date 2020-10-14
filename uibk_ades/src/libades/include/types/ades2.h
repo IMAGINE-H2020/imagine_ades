@@ -132,7 +132,7 @@ namespace ades {
          *  \param motionSequence : the motion sequence (see MotionSequence2) to add
          */
         void insertMotionSequence(const std::string motionSequenceID,
-                                         const MotionSequence2 motionSequence);
+                                        MotionSequence2 motionSequence);
 
         /*! Removes a motion sequence (see MotionSequence2) by ID from this Ades2.
          *  \param motionSequenceID : a ID of <string> to identify the sequence

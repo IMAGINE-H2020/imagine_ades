@@ -56,7 +56,7 @@ namespace ades {
             return ID;
         }
 
-        uint64_t getScore() const
+        float getScore() const
         {
             return score;
         }
@@ -65,6 +65,12 @@ namespace ades {
         {
             score = ((s <= 1.0 ? s : 1.0) >= -1 ? s : -1.0);
         }
+
+        int getMotionNumber() const
+        {
+            return motions_.size();
+        }
+
 
         /*! Add a set of input types to this motion sequence. Checks against duplicate entries.
          *  \param inputTypes : vector of <string> specifying input types

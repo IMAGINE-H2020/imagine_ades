@@ -13,6 +13,8 @@
 #include "imagine_common/ListAdes.h"
 #include "imagine_common/StoreAdes.h"
 #include "imagine_common/UpdateAdes.h"
+#include "imagine_common/UpdateAdesMotionNames.h"
+#include "imagine_common/AddMotionSequence.h"
 #include "imagine_common/DeleteAdes.h"
 
 #include "imagine_common/ListMotion.h"
@@ -47,6 +49,8 @@ class Ades2db_ros
         ros::ServiceServer ss_list_ades;
         ros::ServiceServer ss_store_ades;
         ros::ServiceServer ss_update_ades;
+        ros::ServiceServer ss_update_ades_motion;
+        ros::ServiceServer ss_add_motion_sequence;
         ros::ServiceServer ss_delete_ades;
         ros::ServiceServer ss_update_effect_models;
         ros::ServiceServer ss_estimate_effect;
@@ -79,7 +83,10 @@ class Ades2db_ros
         bool list_ades_srv(imagine_common::ListAdes::Request &rq, imagine_common::ListAdes::Response &rp);
         bool store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine_common::StoreAdes::Response &rp);
         bool update_ades_srv(imagine_common::UpdateAdes::Request &rq, imagine_common::UpdateAdes::Response &rp);
+        bool update_ades_motion_srv(imagine_common::UpdateAdesMotionNames::Request &rq, imagine_common::UpdateAdesMotionNames::Response &rp);
         bool delete_ades_srv(imagine_common::DeleteAdes::Request &rq, imagine_common::DeleteAdes::Response &rp);
+        bool add_motion_sequence_srv(imagine_common::AddMotionSequence::Request &rq, imagine_common::AddMotionSequence::Response &rp);
+
 
         bool update_effect_models_srv(imagine_common::UpdateEffects::Request &rq, imagine_common::UpdateEffects::Response &rp);
         bool estimate_effect_srv(imagine_common::EstimateEffect::Request &rq, imagine_common::EstimateEffect::Response &rp);

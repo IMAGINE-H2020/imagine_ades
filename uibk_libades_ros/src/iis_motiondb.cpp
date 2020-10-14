@@ -83,7 +83,7 @@ bool Motiondb_ros::get_motion_srv(imagine_common::GetMotion::Request &rq, imagin
     {
         std::cout << "unknown motion returning empty motion" << std::endl;
         rp.motion = imagine_common::Motion();
-        return false;
+        return true;
     }
 
 }
@@ -96,14 +96,16 @@ bool Motiondb_ros::store_motion_srv(imagine_common::StoreMotion::Request &rq, im
     auto motion = rq.motion;
     if( !(database.isInDB(motion.name)) )
     {
-        Motion * newMotion;
+        Motion * newMotion = NULL;
 
         std::cout << motion.type << std::endl;
         // For now we stupidly switch-case for values:
         const std::string m_types[] = {"DMP", "Trajectory", "Unscrewing"};
         std::vector<std::string> m_types_(m_types, m_types + sizeof(m_types)  / sizeof(m_types[0]) );
+        std::cout << "TYPE: " << motion.type << std::endl;
         int this_type = find(m_types_.begin(), m_types_.end(), motion.type) - m_types_.begin();
-        
+        std::cout << "TYPE found: " << this_type << std::endl;
+                
         int data_index = 0;
         std::map<std::string, std::vector<double>> params;
         for(auto i : motion.data.layout.dim)
@@ -138,12 +140,19 @@ bool Motiondb_ros::store_motion_srv(imagine_common::StoreMotion::Request &rq, im
                 std::cout << "This motion is not implemented yet ; It has not been added to the database. " << std::endl;
             break;
         }
-        newMotion->setTemporalScale(1.0);
-        newMotion->setName(motion.name);
-                
-        database.insertMotion(newMotion);
-        std::cout << "Motion nb : " << database.getMotionNb() << std::endl;
-        result = (database.isInDB(motion.name));
+        if(newMotion != NULL)
+        {
+            newMotion->setTemporalScale(1.0);
+            newMotion->setName(motion.name);
+
+            database.insertMotion(newMotion);
+            std::cout << "Motion nb : " << database.getMotionNb() << std::endl;
+            result = (database.isInDB(motion.name));
+        }
+        else
+        {
+            std::cout << "Motion not implemented ; no addition to the database." << std::endl;
+        }
     }
     else
     {

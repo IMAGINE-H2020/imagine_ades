@@ -22,8 +22,11 @@ Ades2db_ros::Ades2db_ros(ros::NodeHandle &nh, std::string home, int version):
 
     ss_list_ades = nh_.advertiseService("ades2db/list_ades", &Ades2db_ros::list_ades_srv, this);
     ss_store_ades = nh_.advertiseService("ades2db/store_ades", &Ades2db_ros::store_ades_srv, this);
-    ss_update_ades= nh_.advertiseService("ades2db/update_ades", &Ades2db_ros::update_ades_srv, this);
-    ss_delete_ades= nh_.advertiseService("ades2db/delete_ades", &Ades2db_ros::delete_ades_srv, this);
+    ss_update_ades = nh_.advertiseService("ades2db/update_ades", &Ades2db_ros::update_ades_srv, this);
+    ss_update_ades_motion = nh_.advertiseService("ades2db/update_ades_motion", &Ades2db_ros::update_ades_motion_srv, this);
+    ss_delete_ades = nh_.advertiseService("ades2db/delete_ades", &Ades2db_ros::delete_ades_srv, this);
+    ss_add_motion_sequence = nh_.advertiseService("ades2db/add_motion_sequence", &Ades2db_ros::add_motion_sequence_srv, this);
+
 
     ss_update_effect_models = nh_.advertiseService("ades2db/update_effect_models", &Ades2db_ros::update_effect_models_srv, this);
     ss_estimate_effect = nh_.advertiseService("ades2db/estimate_effect", &Ades2db_ros::estimate_effect_srv, this);
@@ -618,6 +621,170 @@ bool Ades2db_ros::update_ades_srv(imagine_common::UpdateAdes::Request &rq, imagi
     
     return result;
 }
+
+bool Ades2db_ros::add_motion_sequence_srv(imagine_common::AddMotionSequence::Request &rq, imagine_common::AddMotionSequence::Response &rp)
+{
+    std::cout << "ADDING motion sequence to ADES ... NOT IMPLEMENTED ..." << std::endl;
+
+    if(!rq.ades_name.empty())
+    {
+        bool adesExists = (database.isInDB(rq.ades_name));
+
+        std::cout << "Trying to add " << rq.motion_sequence.sequence_name << " to " << rq.ades_name << std::endl;
+        auto ades_to_update = database.updateAdesByName(rq.ades_name);
+
+        std::cout << "Updating motion sequences" << std::endl;
+        
+        auto ms = rq.motion_sequence;
+
+        //MotionSequence2 ms_;
+        MotionSequence2 ms2_;
+        ms2_.setScore(ms.score);
+
+        std::vector<std::string> inputTypes;
+        for(auto it : ms.input_types)
+        {
+            inputTypes.push_back(it);
+        }
+        ms2_.insertInputTypes(inputTypes);
+
+        for(auto epb : ms.effect_prob)
+        {
+            // Process values - this should probably go in some utils/processign file:
+            int pos = 0;
+            std::vector<std::string> tokens;
+            std::string delimiter = " ";
+            while ((pos = epb.value.find(delimiter)) != std::string::npos)
+            {
+                tokens.push_back(epb.value.substr(0, pos));
+                epb.value.erase(0, pos + delimiter.length());
+            }
+            if(tokens.size() > 1)
+            {
+                ms2_.insertGMMEffectModel(epb.key, std::stoi(tokens.at(0)), std::stoi(tokens.at(1)));
+            }
+            else
+            {
+                std::cout << "Not enough GMM parameters, effect model not inserted !" << std::endl;
+            }
+        }
+        for(auto epd : ms.effect_pred)
+        {
+            // Process values - this should probably go in some utils/processign file:
+            int pos = 0;
+            std::vector<std::string> tokens;
+            std::string delimiter = " ";
+            while ((pos = epd.value.find(delimiter)) != std::string::npos)
+            {
+                tokens.push_back(epd.value.substr(0, pos));
+                epd.value.erase(0, pos + delimiter.length());
+            }
+            if(tokens.size() > 1)
+            {
+                ms2_.insertGPEffectModel(epd.key, std::stoi(tokens.at(0)), tokens.at(1));
+            }
+            else
+            {
+                std::cout << "Not enough GP parameters, effect model not inserted !" << std::endl;
+            }
+        }
+        int motion_count=0;
+        for(auto motion : ms.motions)
+        {
+            // Check if motion already exists ;
+            // if yes, modify it from motionDB
+            // else insert it
+            // 
+            imagine_common::GetMotion get_motion_call;
+            get_motion_call.request.name = motion.name;
+            client_getmotion.call(get_motion_call);
+            auto found_motion = get_motion_call.response.motion;
+            std::cout << "UPDATE: Is the motion existing? " << (!found_motion.name.empty() ? "TRU" : "FALZ")  << std::endl;
+
+            // If motion does not exist, we call the store_motion service of the motion DB to add the motion
+            // Else, we update it in the motionDB (update_motion)
+            // In any case, we add/update the name to the ades2 motion sequence
+            if( found_motion.name.empty() )
+            {
+                // motion not found
+                imagine_common::StoreMotion store_motion_call;
+                store_motion_call.request.motion = motion;
+                client_storemotion.call(store_motion_call);
+            }
+            else
+            {
+                std::cout << "Motion found, updating in motionDB ..." << std::endl;
+                imagine_common::UpdateMotion update_motion_call;
+                update_motion_call.request.motion_name = motion.name;
+                update_motion_call.request.motion = motion;
+                client_updatemotion.call(update_motion_call);   
+            }
+            std::cout << motion.type << std::endl;
+
+            ms2_.insertMotion(motion_count, motion.name);
+            motion_count += 1;
+        }
+        auto current_sequences = (ades_to_update->getMotionSequences());
+        if ( current_sequences.find(ms.sequence_name) == current_sequences.end() )
+        {
+            std::cout << "Motion sequence does not exist in this ADES ; inserting it." << std::endl;
+            ades_to_update->insertMotionSequence(ms.sequence_name, ms2_);
+        }
+        else
+        {
+            // remove the old one, store the new one :
+            ades_to_update->removeMotionSequence(ms.sequence_name);
+            ades_to_update->insertMotionSequence(ms.sequence_name, ms2_);
+        }
+    } 
+
+    rp.success = true;
+    imagine_common::KeyValPair kv;
+    kv.key = rq.ades_name;
+    kv.value = "updated";
+    db_changed.publish(kv); 
+
+    return true;
+}
+
+bool Ades2db_ros::update_ades_motion_srv(imagine_common::UpdateAdesMotionNames::Request &rq, imagine_common::UpdateAdesMotionNames::Response &rp)
+{
+    std::cout << "Updating ADES motion sequence motion names ..." << std::endl;
+
+    if(!rq.ades_name.empty())
+    {
+        bool adesExists = (database.isInDB(rq.ades_name));
+
+        if(!rq.sequence_name.empty() & adesExists)
+        {
+            auto target_ades = database.updateAdesByName(rq.ades_name);
+            MotionSequence2 * target_motionsequence = target_ades->modifyMotionSequence(rq.sequence_name);
+            int count = 0;
+            int current_motion_nb = target_motionsequence->getMotionNumber();
+            int future_motion_nb = rq.sequence_motion_names.size();
+            for(int motion_ = 0 ; motion_ < current_motion_nb ; motion_++)
+            {
+                target_motionsequence->removeMotion(motion_);
+            }
+            for(int motion_ = 0 ; motion_ < future_motion_nb ; motion_++)
+            {
+                target_motionsequence->insertMotion(motion_, rq.sequence_motion_names[motion_]);
+            }
+        }
+        else
+        {
+            std::cout << "Incorrect Motion Sequence name." << std::endl;       
+        }
+    }
+    else
+    {
+        std::cout << "Incorrect ADES name." << std::endl;
+
+    }
+
+    return true;
+}
+
 
 bool Ades2db_ros::delete_ades_srv(imagine_common::DeleteAdes::Request &rq, imagine_common::DeleteAdes::Response &rp)
 {

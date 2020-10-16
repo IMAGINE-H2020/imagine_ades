@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="12">
+<ades class_id="0" tracking_level="0" version="0">
+	<ID>140726299718352</ID>
+	<name_>lever</name_>
+	<preconditions_ class_id="1" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="0" version="0">
+			<first>lever(?component - removable-component ?side - side ?aff - leverable ?mode - mode)</first>
+			<second>(and
+               (not (has-lingering-screws ?side))
+               (has-affordance ?component ?aff)
+               (current-side ?side)
+               (at-side ?component ?side)
+               (forall (?screw - screw) (not (fixed-by ?component ?screw)))
+              )
+      </second>
+		</item>
+	</preconditions_>
+	<effects_>
+		<count>1</count>
+		<item_version>0</item_version>
+		<item>
+			<first></first>
+			<second>(and
+                (forall (?other - thing) (not (occludes ?component ?other)))
+                (removed ?component)
+                (increase (total-cost) (cost-affordance ?aff ?mode))
+              )
+      </second>
+		</item>
+	</effects_>
+	<motion_sequences_ class_id="3" tracking_level="0" version="0">
+		<count>3</count>
+		<item_version>0</item_version>
+		<item class_id="4" tracking_level="0" version="0">
+			<first>lever_head</first>
+			<second class_id="5" tracking_level="0" version="0">
+				<ID>140726299717872</ID>
+				<inputTypes_ class_id="9" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>contact_position</item>
+				</inputTypes_>
+				<num_gmm_models>0</num_gmm_models>
+				<effectTypes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</effectTypes>
+				<motions_>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>LeverRWHead</item>
+				</motions_>
+			</second>
+		</item>
+		<item>
+			<first>lever_headcable</first>
+			<second>
+				<ID>140726299717872</ID>
+				<inputTypes_>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>contact_position</item>
+				</inputTypes_>
+				<num_gmm_models>0</num_gmm_models>
+				<effectTypes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</effectTypes>
+				<motions_>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>LeverRWHeadCable</item>
+				</motions_>
+			</second>
+		</item>
+		<item>
+			<first>lever_magnet</first>
+			<second>
+				<ID>140726299717872</ID>
+				<inputTypes_>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>contact_position</item>
+				</inputTypes_>
+				<num_gmm_models>0</num_gmm_models>
+				<effectTypes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</effectTypes>
+				<motions_>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>LeverMagnetG3_1</item>
+					<item>RemoveMagnet</item>
+				</motions_>
+			</second>
+		</item>
+	</motion_sequences_>
+</ades>
+</boost_serialization>
+

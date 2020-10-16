@@ -38,26 +38,34 @@ if __name__ == "__main__":
     #if db2, wait for ns/ades2db/list_ades and ns/motiondb/list_motion
     if not namespace_symb:
         namespace_symb = default_namespace_symb
-    if not type_symb:
+    if type_symb == '':
         type_symb = default_type_symb
+    else:
+        type_symb = int(type_symb)
 
+    adesdb_name = "/ades2db" if type_symb == 2 else "/adesdb"
     print("Waiting for symbolic db to be up")
-    srv_ades_symb = namespace_symb + "/ades2db" if type_symb == 2 else "/adesdb"
+    srv_ades_symb = namespace_symb + adesdb_name
     srv_motion_symb = namespace_symb + "/motiondb"
     
+    print("Expected service:"+srv_ades_symb+"/list_ades")
     rospy.wait_for_service(srv_ades_symb+"/list_ades")
     if type_symb == 2:
         rospy.wait_for_service(srv_motion_symb+"/list_motion")
 
     if not namespace_subs:
         namespace_subs = default_namespace_subs
-    if not type_subs:
+    if type_subs == '':
         type_subs = default_type_subs
+    else:
+        type_subs = int(type_subs)
 
+    adesdb_name = "/ades2db" if type_subs == 2 else "/adesdb"
     print("Waiting for subsymbolic db to be up")
-    srv_ades_subs = namespace_subs + "/ades2db" if type_subs == 2 else "/adesdb"
+    srv_ades_subs = namespace_subs + adesdb_name
     srv_motion_subs = namespace_subs + "/motiondb"
     
+    print("Expected service:"+srv_ades_subs+"/list_ades")
     rospy.wait_for_service(srv_ades_subs+"/list_ades")
     if type_subs == 2:
         rospy.wait_for_service(srv_motion_subs+"/list_motion")
@@ -121,18 +129,30 @@ if __name__ == "__main__":
         print(len(new_motions))
         for ms in new_motions:
             print(ms.sequence_name)
-            motions_subs = get_ades_motion_names_subs(ad_sub, ms.sequence_name).motion_names
-            print(motions_subs)
-            for m in motions_subs:
-                if m in current_motions_targ:
-                    print(m+" is a known motion")
-                    print("not stored")
+            print(ms.score)
+            print(len(ms.motions))
+            for m in ms.motions:
+                if len(ms.motions) == 1 and len(new_motions) == 1:
+                    print(m.name)
+                    print(m.type)
+                    m.name = ad_sub
+                    print(m.name)
+                    store_motion_targ(m)
                 else:
-                    print(m+" is unknwon")
-                    m_subs = get_motion_subs(m)
-                    print(type(m_subs.motion))
-                    print(m_subs)
-                    store_motion_targ(m_subs.motion)
+                    print("motion ignored")
+            # the following only works with type2 database
+            #motions_subs = get_ades_motion_names_subs(ad_sub, ms.sequence_name).motion_names
+            #print(motions_subs)
+            #for m in motions_subs:
+            #    if m in current_motions_targ:
+            #        print(m+" is a known motion")
+            #        print("not stored")
+            #    else:
+            #        print(m+" is unknwon")
+            #        m_subs = get_motion_subs(m)
+            #        print(type(m_subs.motion))
+            #        print(m_subs)
+            #        store_motion_targ(m_subs.motion)
         print("===============================")
 
     # all motions have been stored, now move on to the 
@@ -196,27 +216,3 @@ if __name__ == "__main__":
                 add_motion_sequence_targ(ades_name=ad_sym, motion_sequence=ms)
             for k, v in motions_per_sequence.iteritems():
                 update_ades_motion_targ(ades_name=new_ades.ades_name, sequence_name=k, sequence_motion_names=v)
-
-        exit()
-
-        common_ades = set()
-        if ades_symb != ades_subs:
-            print("Databases contain different ADES.")
-            print(ades_symb)
-            print(ades_subs)
-            common_ades = set(ades_symb).intersection(ades_subs)
-            print("There are only "+str(len(common_ades))+" in common.")
-            choice = raw_input("Do you want to proceed? [Y/n]: ")
-            if choice == 'n':
-                exit()
-
-        print("Common ades nb: %d" % len(common_ades))
-    for a_s in common_ades:
-        # fetch infos:
-        new_pc = get_preconds_symb(a_s)
-        new_ef = get_effects_symb(a_s)
-        new_motions = get_ades_motions_subs(a_s)
-        print(new_pc)
-        print(new_ef)
-        print(new_motions)
-

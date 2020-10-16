@@ -17,6 +17,7 @@ Ades2db_ros::Ades2db_ros(ros::NodeHandle &nh, std::string home, int version):
     ss_get_precond = nh_.advertiseService("ades2db/get_preconds", &Ades2db_ros::get_preconds_srv, this);
     ss_get_effect = nh_.advertiseService("ades2db/get_effects", &Ades2db_ros::get_effects_srv, this);
     ss_get_motion = nh_.advertiseService("ades2db/get_motions", &Ades2db_ros::get_motions_srv, this);
+    ss_get_motion_sequence_name = nh_.advertiseService("ades2db/get_motion_sequence_names", &Ades2db_ros::get_motion_sequence_names_srv, this);
     ss_get_motion_name = nh_.advertiseService("ades2db/get_motion_names", &Ades2db_ros::get_motion_names_srv, this);
 
 
@@ -283,6 +284,34 @@ bool Ades2db_ros::get_motion_names_srv(imagine_common::GetAdesMotionNames::Reque
 
     return true;
 }
+
+bool Ades2db_ros::get_motion_sequence_names_srv(imagine_common::GetAdesMotionSequenceNames::Request &rq, imagine_common::GetAdesMotionSequenceNames::Response &rp)
+{
+    // This function just send back motion sequence names
+    std::cout << "return motion sequence names for ades " << rq.ades_name << std::endl;
+    
+    auto ms_names = std::vector<std::string>();
+    
+    if(database.isInDB(rq.ades_name))
+    {
+        std::cout << "Ades in DB" << std::endl;
+        auto ades = database.getAdesByName(rq.ades_name);
+
+        for(auto sequence : ades.getMotionSequences())
+        {
+            std::cout << "sequence: " << sequence.first << std::endl;
+            ms_names.push_back(sequence.first);
+        }
+        rp.motion_sequence_names = ms_names;
+    }
+    else
+    {
+        std::cout << "ADES not found in DB" << std::endl;
+    }
+
+    return true;
+}
+
 
 bool Ades2db_ros::store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine_common::StoreAdes::Response &rp)
 {

@@ -30,6 +30,7 @@
 #include "imagine_common/GetAdesEffects.h"
 #include "imagine_common/GetAdesMotions.h"
 #include "imagine_common/GetAdesMotionNames.h"
+#include "imagine_common/GetAdesMotionSequenceNames.h"
 
 #include "imagine_common/KeyValPair.h"
 #include "imagine_common/Motion.h"
@@ -46,6 +47,7 @@ class Ades2db_ros
         ros::ServiceServer ss_get_effect;
         ros::ServiceServer ss_get_motion;
         ros::ServiceServer ss_get_motion_name;
+        ros::ServiceServer ss_get_motion_sequence_name;
         ros::ServiceServer ss_list_ades;
         ros::ServiceServer ss_store_ades;
         ros::ServiceServer ss_update_ades;
@@ -57,7 +59,7 @@ class Ades2db_ros
 
         ros::ServiceClient client_listmotion;
         ros::ServiceClient client_storemotion;
-        ros::ServiceClient client_getmotion; 
+        ros::ServiceClient client_getmotion;
         ros::ServiceClient client_updatemotion;
         ros::ServiceClient client_deletemotion;
 
@@ -78,7 +80,7 @@ class Ades2db_ros
         bool get_effects_srv(imagine_common::GetAdesEffects::Request &rq, imagine_common::GetAdesEffects::Response &rp);
         bool get_motions_srv(imagine_common::GetAdesMotions::Request &rq, imagine_common::GetAdesMotions::Response &rp);
         bool get_motion_names_srv(imagine_common::GetAdesMotionNames::Request &rq, imagine_common::GetAdesMotionNames::Response &rp);
-
+        bool get_motion_sequence_names_srv(imagine_common::GetAdesMotionSequenceNames::Request &rq, imagine_common::GetAdesMotionSequenceNames::Response &rp);
 
         bool list_ades_srv(imagine_common::ListAdes::Request &rq, imagine_common::ListAdes::Response &rp);
         bool store_ades_srv(imagine_common::StoreAdes::Request &rq, imagine_common::StoreAdes::Response &rp);

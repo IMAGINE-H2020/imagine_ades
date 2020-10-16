@@ -85,7 +85,7 @@ namespace ades {
 
 
     void Ades2::insertMotionSequence(const std::string motionSequenceID,
-                                    const MotionSequence2 motionSequence)
+                                     MotionSequence2 motionSequence)
     {
         motion_sequences_.insert(pair<string, MotionSequence2>(motionSequenceID, motionSequence));
     }

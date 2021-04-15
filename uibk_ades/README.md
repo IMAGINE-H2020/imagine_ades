@@ -13,6 +13,19 @@ This library implements in C++ the ADES model and related tools. Documentation c
 -DBUILD_DOC=ON
 ```
 
+Later on, when building the ROS wrapper, libgp seems to not be found if build with tests. If you experience the following type of errors:
+
+```
+ undefined reference to `libgp::GaussianProcess::GaussianProcess(...)
+
+```
+compile libgp with
+
+```
+-DBUILD_TESTS=OFF
+```
+
+
 ## Building
 
 This library relies on CMake for build ; thus, building only requires the usual following commands (in the library folder):

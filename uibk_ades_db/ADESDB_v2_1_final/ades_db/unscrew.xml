@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="15">
+<ades class_id="0" tracking_level="0" version="0">
+	<ID>140726616247072</ID>
+	<name_>unscrew</name_>
+	<preconditions_ class_id="1" tracking_level="0" version="0">
+		<count>1</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="0" version="0">
+			<first>unscrew(?screw - screw ?side - side ?aff - unscrewability ?mode - mode)</first>
+			<second>(and (not (has-lingering-screws ?side)) (at-side ?screw ?side) (has-affordance ?screw ?aff) (not (= ?mode simulated)))</second>
+		</item>
+	</preconditions_>
+	<effects_>
+		<count>1</count>
+		<item_version>0</item_version>
+		<item>
+			<first></first>
+			<second>(and
+                (not (at-side ?screw ?side))
+                (forall (?thing - thing) (not (fixed-by ?thing ?screw)))
+                (has-lingering-screws ?side)
+                (removed ?screw)
+                (increase (total-cost) (cost-affordance ?aff ?mode)))</second>
+		</item>
+	</effects_>
+	<motion_sequences_ class_id="3" tracking_level="0" version="0">
+		<count>0</count>
+		<item_version>0</item_version>
+	</motion_sequences_>
+</ades>
+</boost_serialization>
+

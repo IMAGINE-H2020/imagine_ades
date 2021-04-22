@@ -1,6 +1,6 @@
 # iis_libades_ros
 
-Wrapper around [libades](https://github.com/lokalmatador/ades/)
+Wrapper around [libades](https://github.com/IMAGINE-H2020/imagine_ades/uibk_ades)
 
 ## Usage
 

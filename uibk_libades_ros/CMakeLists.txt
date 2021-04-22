@@ -225,6 +225,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/iis_libades_node.cpp)
 add_executable(adesdb src/iis_adesdb.cpp)
 add_executable(ades2db src/iis_ades2db.cpp)
+add_executable(ades2_1db src/iis_ades2_1db.cpp)
 add_executable(motiondb src/iis_motiondb.cpp)
 
 ## Rename C++ executable without prefix
@@ -252,6 +253,15 @@ target_link_libraries(
 
 target_link_libraries(
     ades2db
+    ${catkin_LIBRARIES}
+    libADES
+    boost
+    mlpack
+    libgp
+)
+
+target_link_libraries(
+    ades2_1db
     ${catkin_LIBRARIES}
     libADES
     boost

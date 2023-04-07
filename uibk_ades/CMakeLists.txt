@@ -32,6 +32,9 @@ endforeach()
 
 include(GNUInstallDirs)
 
+# OpenMP compilation to fit mlpack constraint
+find_package(OpenMP)
+
 # Boost
 find_package(Boost REQUIRED COMPONENTS system serialization filesystem)
 add_library(boost INTERFACE IMPORTED)

@@ -924,13 +924,16 @@ bool Ades2db_ros::estimate_effect_srv(imagine_common::EstimateEffect::Request &r
         else
         {
             std::cout << "Sequence name unknown, can't estimate effect." << std::endl;
+            return false;
         }
 
     }
     else
     {
         std::cout << "ADES name unknown, can't estimate effect." << std::endl;
+        return false;
     }
+    return true;
 }
 
 bool Ades2db_ros::run()

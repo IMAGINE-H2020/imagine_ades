@@ -22,6 +22,8 @@ message(STATUS ${CMAKE_MODULE_PATH})
 
 # IMPORTED TARGETS
 
+# OpenMP compilation to fit mlpack constraint
+find_package(OpenMP)
 # LibADES
 find_package(ADES REQUIRED)
 if(ADES_INCLUDE_DIRS)
@@ -249,7 +251,7 @@ target_link_libraries(
     boost
     mlpack
     libgp
-)
+    OpenMP::OpenMP_CXX)
 
 target_link_libraries(
     ades2db
@@ -258,7 +260,7 @@ target_link_libraries(
     boost
     mlpack
     libgp
-)
+    OpenMP::OpenMP_CXX)
 
 target_link_libraries(
     ades2_1db
@@ -267,7 +269,7 @@ target_link_libraries(
     boost
     mlpack
     libgp
-)
+    OpenMP::OpenMP_CXX)
 
 target_link_libraries(
     motiondb
@@ -275,7 +277,7 @@ target_link_libraries(
     libADES
     boost
     libgp
-)
+    OpenMP::OpenMP_CXX)
 
 #############
 ## Install ##

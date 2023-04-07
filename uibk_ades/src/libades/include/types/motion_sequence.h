@@ -236,7 +236,9 @@ namespace ades {
                 {
                     auto component = model.Component(i);
                     auto pc = &component;
-                    ar & mlpack::data::CreateNVP(model.Component(i), "comp"+std::to_string(i));
+                    ar & BOOST_SERIALIZATION_NVP(model.Component(i));
+                    //ar & BOOST_SERIALIZATION_NVP(model.Component(i), "comp"+std::to_string(i));
+                    //ar & mlpack::data::CreateNVP(model.Component(i), "comp"+std::to_string(i));
                 }
             }
 
@@ -290,7 +292,9 @@ namespace ades {
                 for(int j = 0; j < num_gaussians; j++)
                 {
                     mlpack::distribution::GaussianDistribution d;
-                    ar & mlpack::data::CreateNVP(d, "comp"+std::to_string(j));
+                    ar & BOOST_SERIALIZATION_NVP(d);
+                    //ar & mlpack::data::CreateNVP(d, "comp"+std::to_string(j));
+                    //ar & BOOST_SERIALIZATION_NVP(model.Component(i), "comp"+std::to_string(i));
                     dists.push_back(d);
 
                 }

@@ -20,7 +20,8 @@ target_link_libraries(${LIBRARY_NAME}
 	boost
 	armadillo
 	libgp
-	mlpack)
+	mlpack
+    OpenMP::OpenMP_CXX)
 
 install(TARGETS ${LIBRARY_NAME}
   EXPORT ADESTargets
